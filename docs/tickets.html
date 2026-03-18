@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detailed Tickets - dubLive Tickets</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
+      /* --- Global Variables & Reset --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      :root {
+        --color-background: #0a0a0a;
+        --color-text-main: #f0f0f0;
+        --color-text-muted: #c0c0c0;
+        --color-accent-primary: #1dc7a5;
+        --color-card: #111;
+        --color-border: #222;
+        --color-success: #1d8240;
+        --color-warning: #ffc107;
+        --color-danger: #dc3545;
+      }
+
+      body {
+        min-height: 100vh;
+        background-color: var(--color-background);
+        color: var(--color-text-main);
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+
+      /* --- Back Arrow Link --- */
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-accent-primary);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 10px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(29, 199, 165, 0.1);
+        margin-bottom: 20px;
+      }
+      .back-link:hover {
+        background: var(--color-accent-primary);
+        color: var(--color-background);
+      }
+      .back-link i {
+        font-size: 1rem;
+      }
+
+      /* --- Main Content --- */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding-top: 10px;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .page-header h1 {
+        color: var(--color-text-main);
+        font-size: 1.8rem;
+      }
+      .page-header p {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+        margin-top: 5px;
+      }
+
+      /* CSV Download Button */
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-background);
+        text-decoration: none;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, var(--color-accent-primary), #57ff8f);
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(29,199,165,0.4);
+      }
+
+      /* Search Input */
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #searchInput {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        background: #282828;
+        color: var(--color-text-main);
+        font-size: 0.9rem;
+        width: 250px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      #searchInput:focus {
+        border-color: var(--color-accent-primary);
+      }
+      #searchInput::placeholder {
+        color: var(--color-text-muted);
+      }
+      #clearSearchBtn {
+        background: none;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        display: none;
+      }
+      #clearSearchBtn:hover {
+        color: var(--color-text-main);
+      }
+
+      /* --- Table Container --- */
+      .table-container {
+        background: var(--color-card);
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--color-border);
+        overflow-x: auto;
+      }
+
+      /* --- Detailed Table Styles --- */
+      .detailed-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+      }
+
+      .detailed-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .detailed-table th {
+        background-color: #1a1a1a;
+        padding: 8px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-size: 0.75rem;
+        border-bottom: 2px solid var(--color-border);
+        white-space: nowrap;
+      }
+
+      .detailed-table td {
+        padding: 6px 12px;
+        border-bottom: 1px solid #2a2a2a;
+        vertical-align: middle;
+        font-size: 0.8rem;
+      }
+
+      .detailed-table tbody tr:hover {
+        background-color: #151515;
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--color-text-muted);
+      }
+      .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+      }
+
+      /* Loading state */
+      .truncate {
+        max-width: 180px; /* Match the Email column width */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .page-header h1 {
+          font-size: 1.4rem;
+        }
+        .search-container {
+          width: 100%;
+          flex-wrap: wrap;
+        }
+        #searchInput {
+          width: 100%;
+          flex: 1;
+          min-width: 150px;
+        }
+        .download-btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .table-container {
+          padding: 0.75rem;
+          margin: 0 -10px;
+          width: calc(100% + 20px);
+          border-radius: 8px;
+        }
+        .detailed-table {
+          font-size: 0.7rem;
+          min-width: 500px;
+        }
+        .detailed-table th,
+        .detailed-table td {
+          padding: 6px 8px;
+        }
+        .truncate {
+          max-width: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="ticket-management.html" class="back-link">
+      <i class="fas fa-arrow-left"></i>
+      Back
+    </a>
+
+    <div class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Detailed Tickets</h1>
+          <p id="organizerEmail">Loading...</p>
+        </div>
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search ID, Email, or Phone..."
+          />
+          <button id="clearSearchBtn" title="Clear search">&times;</button>
+          <button
+            id="downloadCsvBtn"
+            class="download-btn"
+            style="display: none"
+          >
+            <i class="fas fa-download"></i>
+            Download CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div id="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          Loading tickets...
+        </div>
+
+        <table id="ticketsTable" class="detailed-table" style="display: none">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Method</th>
+              <th>Date</th>
+              <th>Tickets</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsTableBody"></tbody>
+        </table>
+
+        <div id="emptyState" class="empty-state" style="display: none">
+          <i class="fas fa-ticket-alt"></i>
+          <p>No tickets found</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+      import {
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        query,
+        where,
+        Timestamp,
+      } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+      import { auth, db } from "./auth.js";
+
+      const loadingEl = document.getElementById("loading");
+      const tableEl = document.getElementById("ticketsTable");
+      const emptyStateEl = document.getElementById("emptyState");
+      const tableBodyEl = document.getElementById("ticketsTableBody");
+      const organizerEmailEl = document.getElementById("organizerEmail");
+      const downloadCsvBtn = document.getElementById("downloadCsvBtn");
+      const searchInput = document.getElementById("searchInput");
+      const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+      let currentOrganizerEventId = null;
+      let allTicketsData = [];
+
+      // Helper function to format Firebase Timestamp
+      function formatDate(timestampData) {
+        if (
+          !timestampData ||
+          typeof timestampData !== "object" ||
+          !timestampData.seconds
+        ) {
+          return "N/A";
+        }
+        const date = new Date(timestampData.seconds * 1000);
+        return date.toISOString().split("T")[0]; // YYYY-MM-DD format
+      }
+
+      // Helper to get payment method
+      function getPaymentMethod(ticketId) {
+        if (ticketId && ticketId.startsWith("CASH-")) {
+          return "Cash";
+        } else if (ticketId && ticketId.startsWith("PND-")) {
+          return "Bank";
+        } else {
+          return "Online";
+        }
+      }
+
+      // Helper to get status
+      function getStatus(status) {
+        return status.toUpperCase();
+      }
+
+      // Helper to format tickets into single column
+      function getTicketsSummary(ticketsArray) {
+        if (!ticketsArray || ticketsArray.length === 0) return "-";
+        return ticketsArray
+          .map((t) => {
+            const type = t.type || "Standard";
+            const firstWord = type.split(" ")[0];
+            return `${firstWord} x${t.qty || 0}`;
+          })
+          .join(", ");
+      }
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.replace("admin.html");
+          return;
+        }
+
+        organizerEmailEl.textContent = user.email || "Organizer";
+
+        // Fetch organizer's assigned event
+        try {
+          let organizerData = null;
+          const docRef = doc(db, "organizers", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            organizerData = docSnap.data();
+          } else {
+            const q = query(
+              collection(db, "organizers"),
+              where("email", "==", user.email),
+            );
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              organizerData = querySnapshot.docs[0].data();
+            }
+          }
+
+          if (organizerData) {
+            currentOrganizerEventId = organizerData.event || null;
+          }
+
+          console.log("Organizer Event ID:", currentOrganizerEventId);
+
+          await loadTickets();
+        } catch (error) {
+          console.error("Error fetching organizer profile:", error);
+          await loadTickets();
+        }
+      });
+
+      async function loadTickets() {
+        const allTickets = [];
+
+        try {
+          const collections = [
+            { name: "tickets", status: "purchased" },
+            { name: "pendingTickets", status: "pending" },
+            { name: "rejectedTickets", status: "rejected" },
+            { name: "cancelledTickets", status: "cancelled" },
+          ];
+
+          for (const col of collections) {
+            let q;
+            if (currentOrganizerEventId) {
+              q = query(
+                collection(db, col.name),
+                where("eventId", "==", currentOrganizerEventId),
+              );
+            } else {
+              q = collection(db, col.name);
+            }
+
+            const snap = await getDocs(q);
+            snap.forEach((doc) => {
+              if (doc.data()) {
+                allTickets.push({
+                  id: doc.id,
+                  ...doc.data(),
+                  status: col.status,
+                });
+              }
+            });
+          }
+
+          // Sort by date (most recent first)
+          allTickets.sort((a, b) => {
+            const dateA =
+              a.purchaseDate && a.purchaseDate.seconds
+                ? a.purchaseDate.seconds
+                : 0;
+            const dateB =
+              b.purchaseDate && b.purchaseDate.seconds
+                ? b.purchaseDate.seconds
+                : 0;
+            return dateB - dateA;
+          });
+
+          allTicketsData = allTickets;
+          // Show download button
+          if (allTickets.length > 0) {
+            downloadCsvBtn.style.display = "inline-flex";
+          }
+
+          renderTable(allTickets);
+        } catch (error) {
+          console.error("Error loading tickets:", error);
+          loadingEl.innerHTML =
+            '<p style="color: #dc3545;">Failed to load tickets</p>';
+        }
+      }
+
+      // CSV Download Function
+      function downloadCSV() {
+        if (!allTicketsData || allTicketsData.length === 0) {
+          alert("No tickets to export");
+          return;
+        }
+
+        // Collect all unique ticket types for dynamic arrival columns
+        const allTicketTypes = new Set();
+        allTicketsData.forEach((ticket) => {
+          const ticketsArray = ticket.tickets || [];
+          ticketsArray.forEach((t) => {
+            const type = t.type || "Standard";
+            const firstWord = type.split(" ")[0];
+            allTicketTypes.add(firstWord);
+          });
+        });
+        const sortedTicketTypes = Array.from(allTicketTypes).sort();
+
+        // Build headers
+        const headers = [
+          "ID",
+          "Email",
+          "Phone",
+          "Status",
+          "Method",
+          "Date",
+          "Tickets",
+        ];
+
+        // Add arrival columns for each ticket type
+        sortedTicketTypes.forEach((type) => {
+          headers.push(`${type} Arrivals`);
+        });
+
+        // Build CSV rows
+        const rows = [];
+
+        allTicketsData.forEach((ticket) => {
+          const method = getPaymentMethod(ticket.id);
+          const status = ticket.status.toUpperCase();
+
+          // Format date
+          let dateStr = "N/A";
+          if (ticket.purchaseDate && ticket.purchaseDate.seconds) {
+            const date = new Date(ticket.purchaseDate.seconds * 1000);
+            dateStr = date.toISOString().split("T")[0];
+          }
+
+          const ticketsArray = ticket.tickets || [];
+          const ticketsSummary = getTicketsSummary(ticketsArray);
+
+          // Build arrival data for each ticket type (empty for manual entry)
+          const arrivalData = {};
+          sortedTicketTypes.forEach((type) => {
+            arrivalData[type] = "";
+          });
+
+          // Mark empty cells for arrival tracking
+          ticketsArray.forEach((t) => {
+            const type = t.type || "Standard";
+            const firstWord = type.split(" ")[0];
+            if (arrivalData.hasOwnProperty(firstWord)) {
+              arrivalData[firstWord] = "";
+            }
+          });
+
+          // Create row
+          const row = [
+            ticket.id,
+            ticket.email || "",
+            ticket.phone || "",
+            status,
+            method,
+            dateStr,
+            ticketsSummary,
+          ];
+
+          // Add arrival columns
+          sortedTicketTypes.forEach((type) => {
+            row.push(arrivalData[type]);
+          });
+
+          rows.push(row);
+        });
+
+        // Create CSV content
+        const csvContent = [
+          headers.join(","),
+          ...rows.map((row) =>
+            row
+              .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+              .join(","),
+          ),
+        ].join("\n");
+
+        // Create download link
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+
+        const fileName = `tickets_${new Date().toISOString().split("T")[0]}.csv`;
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        link.style.visibility = "hidden";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // CSV Download Button Event
+      downloadCsvBtn.addEventListener("click", downloadCSV);
+
+      // Search Functionality
+      function filterTickets(searchTerm) {
+        if (!searchTerm.trim()) {
+          return allTicketsData;
+        }
+
+        const term = searchTerm.toLowerCase().trim();
+
+        return allTicketsData.filter((ticket) => {
+          const idMatch = ticket.id.toLowerCase().includes(term);
+          const emailMatch =
+            ticket.email && ticket.email.toLowerCase().includes(term);
+          const phoneMatch = ticket.phone && ticket.phone.includes(term);
+
+          return idMatch || emailMatch || phoneMatch;
+        });
+      }
+
+      function handleSearch() {
+        const searchTerm = searchInput.value;
+
+        // Show/hide clear button
+        clearSearchBtn.style.display = searchTerm.length > 0 ? "block" : "none";
+
+        const filteredTickets = filterTickets(searchTerm);
+
+        if (filteredTickets.length === 0) {
+          tableEl.style.display = "none";
+          emptyStateEl.style.display = "block";
+          emptyStateEl.querySelector("p").textContent = searchTerm
+            ? "No tickets found for your search"
+            : "No tickets found";
+        } else {
+          tableEl.style.display = "table";
+          emptyStateEl.style.display = "none";
+          renderTable(filteredTickets);
+        }
+      }
+
+      // Search Input Event
+      searchInput.addEventListener("input", handleSearch);
+
+      // Clear Search Button Event
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        clearSearchBtn.style.display = "none";
+        renderTable(allTicketsData);
+        tableEl.style.display = "table";
+        emptyStateEl.style.display = "none";
+      });
+
+      function renderTable(tickets) {
+        loadingEl.style.display = "none";
+
+        if (tickets.length === 0) {
+          emptyStateEl.style.display = "block";
+          return;
+        }
+
+        tableEl.style.display = "table";
+        tableBodyEl.innerHTML = "";
+
+        tickets.forEach((ticket) => {
+          const method = getPaymentMethod(ticket.id);
+          const status = getStatus(ticket.status);
+          const formattedDate = formatDate(ticket.purchaseDate);
+          const ticketsArray = ticket.tickets || [];
+          const ticketsSummary = getTicketsSummary(ticketsArray);
+
+          const row = `
+                    <tr>
+                        <td>${ticket.id}</td>
+                        <td class="truncate" title="${ticket.email}">${ticket.email}</td>
+                        <td>${ticket.phone || "-"}</td>
+                        <td>${status}</td>
+                        <td>${method}</td>
+                        <td>${formattedDate}</td>
+                        <td>${ticketsSummary}</td>
+                    </tr>
+                `;
+          tableBodyEl.insertAdjacentHTML("beforeend", row);
+        });
+      }
+    </script>
+  </body>
+</html>

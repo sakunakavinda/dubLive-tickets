@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Complete Your Payment - Dublive Tickets</title>
+
+  <style>
+
+    /* ... (CSS remains unchanged) ... */
+
+    :root { --bg:#000; --card:#111; --text:#fff; --accent:#00ffcc; --error-bg: #2a0000; --error-border: #4a0000; --error-text: #ffb3b3; }
+
+    *{box-sizing:border-box}
+
+    body{margin:0;font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); display: grid; place-items: center; min-height: 100vh;}
+
+    .wrap{width: 100%; max-width:520px; padding:16px}
+
+    .card{background:var(--card);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:24px}
+
+    h1{margin:0 0 8px;font-size:1.6rem;color:var(--accent)}
+
+    .sub{opacity:.85;margin-bottom:24px}
+
+    #card-element { padding: 12px; border-radius: 10px; border: 1px solid #2a2a2a; background: #1a1a1a; margin-top: 12px; }
+
+    .summary { margin-top: 20px; border-top: 1px solid #2a2a2a; padding-top: 16px; }
+
+    .s-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+
+    .s-row.total { font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 12px; }
+
+    .error { padding:10px; border-radius:10px; background:var(--error-bg); border:1px solid var(--error-border); color:var(--error-text); margin-top:16px; display:none; }
+
+    .actions{margin-top:24px;display:flex;justify-content:flex-end}
+
+    .btn{width:100%;padding:14px 20px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:600;cursor:pointer;font-size:1rem; transition: opacity 0.3s;}
+
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+
+    .success-message { text-align: center; padding: 20px; }
+
+    .success-message h2 { color: var(--accent); }
+
+    #qrCodeContainer { margin: 20px auto; padding: 10px; background: white; border-radius: 8px; width: fit-content; }
+
+    .ticket-id { font-size: 0.8rem; color: #aaa; margin-top: 10px; word-break: break-all; }
+
+    .hidden { display: none; }
+
+  </style>
+
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  
+
+  </head>
+
+<body>
+
+  <div class="wrap">
+
+    <div id="payment-form-container" class="card">
+
+      <h1 id="eventTitle">Confirm Your Purchase</h1>
+
+      <div class="sub" id="customerInfo"></div>
+
+      <div class="summary" id="summary"></div>
+
+      <form id="payment-form">
+
+        <label for="card-element" style="color:#c9efef; font-weight: 600;">Enter Card Details</label>
+
+        <div id="card-element"></div>
+
+        <div id="card-errors" role="alert" class="error"></div>
+
+        <div class="actions">
+
+          <button id="submitBtn" class="btn" disabled>
+
+            <span id="button-text">Pay Now</span>
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+    <div id="success-container" class="card hidden">
+
+        <div class="success-message">
+
+            <h2>Payment Successful!</h2>
+
+            <p>Your ticket has been confirmed. A confirmation has been sent to your email.</p>
+
+            <div id="qrCodeContainer"></div>
+
+            <p class="ticket-id"><strong>Ticket ID:</strong> <span id="ticketId"></span></p>
+
+            <button id="backToEventsBtn" class="btn" style="margin-top: 20px;">Back to Events</button>
+
+        </div>
+
+    </div>
+
+  </div>
+
+
+
+<script type="module">
+
+    // REMOVED: Client-side Firebase Initialization is no longer necessary for database writes
+
+    /*
+
+    const firebaseConfig = { ... };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+
+    */
+
+    
+
+    emailjs.init('3eOiK-xC2wifbVSSx');
+
+    const stripe = Stripe('pk_test_51R9V5a4ZyAT5oIFL6UvbhT3aG2SdirrGBXvoABYEDXKiAUT3q4Nmoc8hDmEnouLjC2NO7TfUIU5UQefgUXJR3sON00AuMCHTdZ'); 
+
+    
+
+    const el = {
+
+        title: document.getElementById('eventTitle'),
+
+        customerInfo: document.getElementById('customerInfo'),
+
+        summary: document.getElementById('summary'),
+
+        submitBtn: document.getElementById('submitBtn'),
+
+        buttonText: document.getElementById('button-text'),
+
+        cardErrors: document.getElementById('card-errors'),
+
+        paymentFormContainer: document.getElementById('payment-form-container'),
+
+        successContainer: document.getElementById('success-container'),
+
+        qrCodeContainer: document.getElementById('qrCodeContainer'),
+
+        ticketId: document.getElementById('ticketId'),
+
+        backToEventsBtn: document.getElementById('backToEventsBtn')
+
+    };
+
+
+
+    let orderDetails;
+
+    try {
+
+        const orderString = sessionStorage.getItem('order');
+
+        if (!orderString) throw new Error("No order details found in sessionStorage.");
+
+        orderDetails = JSON.parse(orderString);
+
+    } catch (error) {
+
+        showError('Error: No order details found. Please go back and select your tickets first.');
+
+        document.getElementById('payment-form').classList.add('hidden');
+
+    }
+
+
+
+    if (orderDetails) {
+
+        initializePayment();
+
+    }
+
+
+
+    let cardElement;
+
+    let clientSecret;
+
+
+
+    async function initializePayment() {
+
+        displayOrderSummary();
+
+        try {
+
+           const response = await fetch('/create-payment-intent', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ order: orderDetails })
+
+            });
+
+            if (!response.ok) {
+
+                const errorText = await response.text();
+
+                throw new Error(`Server Error: ${response.status} ${response.statusText}. Response: ${errorText}`);
+
+            }
+
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error);
+
+            clientSecret = data.clientSecret;
+
+            if (!clientSecret) throw new Error("Client secret was not received from the server.");
+
+            
+
+            const elements = stripe.elements({ clientSecret });
+
+            cardElement = elements.create('card', {
+
+                style: { base: { color: '#fff', fontFamily: 'Poppins, sans-serif', fontSize: '16px', '::placeholder': { color: '#666' } } }
+
+            });
+
+            cardElement.mount('#card-element');
+
+            cardElement.on('change', (event) => {
+
+                el.submitBtn.disabled = event.empty;
+
+                showError(event.error ? event.error.message : '');
+
+            });
+
+        } catch (error) {
+
+            if (error.message.includes("Failed to fetch")) {
+
+                 showError(`Connection Failed: Could not connect to the server at http://localhost:8080.`);
+
+            } else {
+
+                 showError(`Payment setup failed: ${error.message}`);
+
+            }
+
+        }
+
+    }
+
+
+
+    function displayOrderSummary() {
+
+        const eventTitle = orderDetails.eventTitle || 'Your Event'; // Use eventTitle directly from orderDetails if available
+        el.title.textContent = `Confirm Purchase for ${eventTitle}`;
+
+        const { customer, tickets } = orderDetails;
+        
+        // FIX: Display full customer info for confirmation
+        el.customerInfo.textContent = `Purchasing for: ${customer.name} (${customer.email}) | Phone: ${customer.phone} | NIC: ${customer.nic}`;
+
+        let total = 0;
+
+        let summaryHTML = '';
+
+        tickets.forEach(ticket => {
+
+            const subtotal = ticket.price * ticket.quantity;
+
+            total += subtotal;
+
+            summaryHTML += `<div class="s-row"><span>${ticket.quantity} x ${ticket.type}</span><span>${money(subtotal)}</span></div>`;
+
+        });
+
+        summaryHTML += `<div class="s-row total"><span>Total</span><span>${money(total)}</span></div>`;
+
+        el.summary.innerHTML = summaryHTML;
+
+    }
+
+
+
+    document.getElementById('payment-form').addEventListener('submit', async (e) => {
+
+        e.preventDefault();
+
+        setLoading(true);
+
+
+
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+
+            payment_method: {
+
+                card: cardElement,
+
+                billing_details: { name: orderDetails.customer.name, email: orderDetails.customer.email }
+
+            }
+
+        });
+
+
+
+        if (error) {
+
+            showError(error.message);
+
+            setLoading(false);
+
+        } else {
+
+            showSuccess(paymentIntent);
+
+        }
+
+    });
+
+
+
+    function showError(message) {
+
+        el.cardErrors.textContent = message;
+
+        el.cardErrors.style.display = message ? 'block' : 'none';
+
+    }
+
+
+
+    function setLoading(isLoading) {
+
+        el.submitBtn.disabled = isLoading;
+
+        el.buttonText.textContent = isLoading ? 'Processing...' : 'Pay Now';
+
+    }
+
+
+
+    function sendConfirmationEmail(params) {
+
+        const serviceID = 'service_i6m7mx9';
+
+        const templateID = 'template_w4luu7m';
+
+        emailjs.send(serviceID, templateID, params)
+
+            .then(res => console.log("Email sent successfully!", res.status, res.text))
+
+            .catch(err => console.error("Failed to send email. Error: ", err));
+
+    }
+
+
+
+    async function showSuccess(paymentIntent) {
+
+        el.paymentFormContainer.classList.add('hidden');
+
+        el.successContainer.classList.remove('hidden');
+
+        
+
+        const ticketId = paymentIntent.id; // Use Payment Intent ID as the unique ticket ID
+
+        el.ticketId.textContent = ticketId;
+
+        
+
+        try {
+
+            // The 'orderDetails' object contains name, email, phone, and nic, and it is passed here.
+            // Since server.js has been fixed, this step correctly saves all fields to Firestore.
+            const finalizeResponse = await fetch(`/finalize-purchase/${ticketId}`, {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ 
+
+                    orderDetails: orderDetails // This correctly sends the phone and nic fields
+
+                })
+
+            });
+
+
+
+            if (!finalizeResponse.ok) {
+
+                const errorData = await finalizeResponse.json();
+
+                throw new Error(`Server Finalization Failed: ${errorData.error || 'Unknown error'}`);
+
+            }
+
+            console.log("Purchase finalized successfully on server.");
+
+
+
+        } catch (dbError) {
+
+            console.error("CRITICAL ERROR: Failed to finalize purchase on server:", dbError.message);
+
+            // Revert UI to error state as the database is not updated
+
+            showError(`Purchase process failed after payment: ${dbError.message}. Please contact support with Payment ID: ${ticketId}`);
+
+            el.paymentFormContainer.classList.remove('hidden');
+
+            el.successContainer.classList.add('hidden');
+
+            setLoading(false);
+
+            return; 
+
+        }
+
+
+
+        const qrCodeContent = ticketId;
+
+        console.log("QR Code Content:", qrCodeContent);
+
+
+
+        try {
+
+            const typeNumber = 0;
+
+            const errorCorrectionLevel = 'L';
+
+            const qr = qrcode(typeNumber, errorCorrectionLevel);
+
+            qr.addData(qrCodeContent);
+
+            qr.make();
+
+            
+
+            // Get the QR Code image as a base64 data URL
+
+            const qrCodeImageSrc = qr.createDataURL(8, 4); // 8 is moduleSize, 4 is margin
+
+            
+
+            // Display the image (optional: use createImgTag for simpler display)
+
+            const qrImgTag = qr.createImgTag(4, 8);
+
+            el.qrCodeContainer.innerHTML = qrImgTag;
+
+            
+
+            // New step: Upload the QR code image to the server
+
+            await uploadQRCodeImage(ticketId, qrCodeImageSrc); 
+
+            
+
+
+
+            const ticketDetailsText = orderDetails.tickets.map(t => `${t.quantity} x ${t.type}`).join(', ');
+
+            
+            // FIX: Include phone and nic in email parameters
+            const emailParams = {
+
+                to_name: orderDetails.customer.name,
+
+                to_email: orderDetails.customer.email,
+                
+                // NEW FIELDS for confirmation email
+                phone_number: orderDetails.customer.phone, 
+                nic_number: orderDetails.customer.nic,
+                // END NEW FIELDS
+
+                event_title: orderDetails.eventTitle || 'Your Event', // Use orderDetails eventTitle
+
+                ticket_id: ticketId,
+
+                ticket_details: ticketDetailsText,
+
+                // Pass the high-quality data URL for email embedding
+
+                qr_code_image: qrCodeImageSrc 
+
+            };
+
+            sendConfirmationEmail(emailParams);
+
+
+
+        } catch (e) {
+
+            console.error("QR Code generation or Email failed:", e);
+
+            el.qrCodeContainer.innerHTML = "Could not generate QR code.";
+
+            document.querySelector('.success-message p').textContent = "Payment successful! Your ticket has been confirmed, but there was an error generating the QR code or sending the confirmation email.";
+
+        }
+
+
+
+        el.backToEventsBtn.addEventListener('click', () => {
+
+            location.replace('main.html');
+
+        });
+
+
+
+        sessionStorage.removeItem('order');
+
+        sessionStorage.removeItem('eventTitle');
+
+    }
+
+
+
+    async function uploadQRCodeImage(ticketId, base64Image) {
+
+        try {
+
+            const response = await fetch(`/upload-qrcode/${ticketId}`, {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({ base64Image })
+
+            });
+
+            if (!response.ok) {
+
+                const errorData = await response.json();
+
+                throw new Error(errorData.error || 'Unknown upload error');
+
+            }
+
+            console.log("QR Code image successfully uploaded and database updated.");
+
+        } catch (error) {
+
+            console.error("QR Code Upload Failed:", error);
+
+            // Non-critical failure: Payment is done, ticket ID is saved, only the image is missing.
+
+        }
+
+    }
+
+
+
+    function money(n) {
+
+        return (Number(n) || 0).toLocaleString('en-LK') + ' LKR';
+
+    }
+
+</script>
+
+</body>
+
+</html>

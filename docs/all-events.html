@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>All Events - dubLive Events</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+    /* ------------------------------------------------------------------ */
+    /* PROFESSIONAL VISION STYLES & COLOR PALETTE (COPIED FROM HOME.HTML) */
+    /* ------------------------------------------------------------------ */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+    
+    /* --- PROFESSIONAL COLOR PALETTE --- */
+    :root {
+        --color-background: #0a0a0a;
+        --color-text-main: #f0f0f0;
+        --color-text-muted: #c0c0c0;
+        /* Muted Aqua/Teal for Accents and Main Highlight */
+        --color-accent-primary: #1DC7A5; 
+        /* Slightly less aggressive Cyan for secondary elements */
+        --color-accent-secondary: #00ef58; 
+        --color-dark-element: #111;
+        --color-button-dark: #282828;
+        --color-footer-text: #99feaf;
+        /* NEW NAV COLORS for consistency */
+        --color-nav-accent: #00ffcc; 
+        --color-nav-bg: rgba(0,0,0,0.9); /* Opaque for fixed header */
+        --color-nav-shadow: rgba(0, 255, 204, 0.1);
+    }
+    
+    body { 
+        background: var(--color-background); 
+        color: var(--color-text-main); 
+        overflow-x: hidden; 
+        line-height: 1.6;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* NAV BAR STYLES (COPIED FROM HOME.HTML) */
+    /* ------------------------------------------------------------------ */
+    nav {
+        width: 100%;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0; left: 0;
+        z-index: 10;
+        background: var(--color-nav-bg);
+        backdrop-filter: blur(10px);
+        box-shadow: none;
+    }
+
+    .logo-link {
+        text-decoration: none; 
+        display: flex; 
+        align-items: center;
+    }
+
+    .logo { height: 40px; width: auto; display: flex; align-items: center; }
+    .logo img { height: 100%; width: auto; }
+
+    .nav-links { 
+        display: flex; 
+        align-items: center; 
+        gap: 1.5rem; /* Ensure spacing is consistent */
+    }
+
+    .nav-links a {
+        color: var(--color-text-main);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+        margin-left: 0; /* Override old margin-left */
+    }
+    .nav-links a:hover { color: var(--color-nav-accent); }
+    .nav-links a i { 
+        font-size: 1.0rem; /* Adjusted for consistency with home.html */
+        vertical-align: middle; 
+    } 
+
+    /* Removed #hamburger and #menuOverlay styles as per home.html structure */
+    
+    /* ------------------------------------------------------------------ */
+    /* END NAV BAR STYLES */
+    /* ------------------------------------------------------------------ */
+
+
+    /* === SEARCH BAR STYLES === (Adjusted Padding) */
+    #searchContainer {
+        text-align: center;
+        margin: 2rem 0 1rem 0; 
+        padding-top: 100px; /* Increased padding to clear fixed navbar (60px height + 1rem*2 padding = ~100px) */
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+    }
+    #searchWrapper {
+        width: 80%;
+        max-width: 500px;
+        display: flex;
+        background: #fff;
+        border-radius: 30px;
+        overflow: hidden;
+        padding: 0;
+    }
+    #searchInput {
+        flex-grow: 1;
+        padding: 10px 15px;
+        border: none;
+        font-size: 1rem;
+        outline: none;
+    }
+    #clearSearchButton {
+        background: transparent;
+        color: #555;
+        border: none;
+        padding: 10px 0;
+        margin-right: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+    }
+    #clearSearchButton:hover {
+        color: #ff5555;
+    }
+    #searchButton {
+        background: transparent; 
+        color: var(--color-accent-secondary); /* Used secondary accent color */
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: color 0.3s;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #searchButton:hover {
+        background: transparent;
+        color: var(--color-nav-accent); 
+    }
+    /* === END SEARCH BAR STYLES === */
+    
+    /* === FILTER BUTTONS STYLES === */
+    #filterContainer {
+        text-align: center;
+        padding: 0 1rem 1rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        overflow-x: auto; 
+        white-space: nowrap; 
+    }
+    .filter-btn {
+        background: #333;
+        color: #fff;
+        border: 2px solid #333;
+        padding: 8px 18px;
+        margin: 5px;
+        border-radius: 22rem; /* Updated to round style */
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .filter-btn:hover {
+        background: var(--color-text-main);
+        border-color: var(--color-text-main);
+        color: var(--color-background);
+    }
+    .filter-btn.active {
+        background: var(--color-accent-secondary);
+        border-color: var(--color-accent-secondary);
+        color: var(--color-background);
+        font-weight: 700;
+    }
+    /* === END FILTER BUTTONS STYLES === */
+
+
+    /* Section Title Styling - Professional look */
+    .section-title {
+        font-size: 2.2rem; 
+        color: var(--color-text-muted);
+        text-align: center;
+        padding: 1.5rem 2rem 0;
+        margin-top: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 3px; 
+        font-weight: 700; 
+    }
+
+    /* Events Section (Grid Container) */
+    .events {
+        padding: 2rem 2rem 4rem; 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+        gap: 2rem;
+        justify-content: center;
+    }
+    
+    /* 🚀 START OF HOMEPAGE CARD STYLES 🚀 */
+    .event-card {
+        background: var(--color-background);
+        border-radius: 22px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #1a1a1a;
+    }
+    .event-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--color-nav-accent); /* Added subtle neon glow */
+    }
+
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; 
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+
+    .event-card img { 
+      position: absolute;
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+    
+    .event-card .content { 
+        padding: 1.2rem; 
+        flex-grow: 1; 
+        display: flex;
+        flex-direction: column;
+    }
+    .event-card .content h3 { 
+        color: var(--color-accent-secondary); 
+        margin-bottom: 0.4rem; 
+        font-size: 1.15rem;
+        font-weight: 500; 
+    }
+    .event-card .content .details {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--color-text-main);
+        line-height: 1.6;
+    }
+    .event-card .content .details i {
+        color: var(--color-accent-primary);
+    }
+
+    .event-card .content .price {
+        font-weight: 400; 
+        color: var(--color-accent-primary); 
+        margin-top: 0.5rem;
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    /* The Book Now Button */
+    .book-now-btn {
+        margin-top: auto;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-background);
+        background-color: var(--color-accent-primary); 
+        border: none;
+        border-radius: 22rem; /* Updated to round style */
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+        width: auto;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        margin-left: auto;
+    }
+    .book-now-btn:hover {
+        background-color: #18a383;
+        transform: translateY(-1px);
+    }
+    
+    /* Breathing animation for Notify ticket release button */
+    .notify-btn {
+        animation: breathe 2s ease-in-out infinite;
+    }
+    
+    @keyframes breathe {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(2, 184, 96, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 20px 5px rgba(2, 184, 96, 0.3); }
+    }
+    /* 🚀 END OF HOMEPAGE CARD STYLES 🚀 */
+
+  /* ======================================= */
+  /* *** FOOTER STYLES *** */
+  /* ======================================= */
+  footer {
+    background: #000;
+    color: #99feaf;
+    text-align: center;
+    padding: 3rem 1rem; 
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    font-weight: 300; 
+  }
+  
+  .footer-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    padding-bottom: 2rem;
+    text-align: left;
+  }
+
+  .footer-left {
+    flex: 2;
+    max-width: 60%; 
+    min-width: 300px;
+  }
+
+  .footer-right {
+    flex: 1;
+    max-width: 40%;
+    text-align: right;
+  }
+
+  footer .footer-logo {
+    max-width: 200px; 
+    height: auto;
+    margin-bottom: 1.5rem; 
+    display: block;
+  }
+
+  footer .about-description { 
+    color: #c4e9d3; 
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+  }
+  
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+  }
+  .contact-details p, .contact-details a {
+    color: #c4e9d3;
+    text-decoration: none;
+    margin: 5px 0;
+  }
+  .contact-details strong {
+    color: var(--color-nav-accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .social-icons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .social-icons a { 
+    color: var(--color-nav-accent); 
+    margin: 0;
+    text-decoration: none; 
+    font-size: 1.3rem;
+    transition: color 0.3s;
+  }
+  .social-icons a:hover { color: var(--color-accent-secondary); }
+
+  .copyright-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #b0b0b0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .copyright-bar p { margin: 0; }
+  .copyright-bar a {
+    color: #b0b0b0;
+    text-decoration: none;
+    margin-left: 10px;
+    transition: color 0.3s;
+  }
+  .copyright-bar a:hover {
+    color: var(--color-nav-accent);
+  }
+
+    /* Mobile Overrides (Max Width 768px) */
+    @media(max-width:768px){
+        .logo { height: 30px; } 
+        nav { padding: 0.8rem 1rem; } /* Adjusted padding */
+        
+        .events { 
+            padding: 2rem 1rem; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 1rem; 
+        }
+        .event-card .content {
+            padding: 0.8rem;
+        }
+        .event-card .content h3 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        .event-card .content .details p, 
+        .event-card .content .price {
+            font-size: 0.75rem; 
+        }
+        .book-now-btn {
+            padding: 8px 16px;
+            font-size: 0.75rem;
+        }
+
+        #searchContainer { padding-top: 90px; } /* Adjusted to clear new fixed nav */
+        .section-title { font-size: 1.8rem; }
+
+        .footer-wrapper {
+          flex-direction: column;
+          text-align: center;
+          gap: 30px;
+        }
+        .footer-left, .footer-right {
+          max-width: 100%;
+          min-width: 100%;
+          flex: none;
+        }
+        .footer-left .footer-logo {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .footer-right {
+          text-align: center;
+        }
+        .contact-details {
+          align-items: center;
+        }
+        .social-icons {
+          justify-content: center;
+        }
+    }
+    
+    /* Mobile Override for Filters */
+    @media (max-width: 480px) {
+        .filter-btn {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Notification Modal Styles */
+    #notificationModal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    #notificationModal.show {
+        display: flex;
+    }
+    .notification-modal-content {
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
+    }
+    .notification-modal-content h3 {
+        color: #00ffcc;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+    }
+    .notification-modal-content p {
+        color: #ccc;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    .notification-modal-content .form-group {
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+    .notification-modal-content label {
+        display: block;
+        color: #83ffa6;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .notification-modal-content input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #0c0c0c;
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+    }
+    .notification-modal-content input:focus {
+        border-color: #00ffcc;
+    }
+    .notification-modal-content .btn-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 1.5rem;
+    }
+    .notification-modal-content button {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    #sendRequestBtn {
+        background: #02b860;
+        color: #fff;
+        animation: colorCycle 3s ease-in-out infinite;
+    }
+    #sendRequestBtn:hover {
+        background: #00cc99;
+    }
+    
+    @keyframes colorCycle {
+        0% { background: #02b860; }
+        25% { background: #00b894; }
+        50% { background: #00cec9; }
+        75% { background: #6c5ce7; }
+        100% { background: #02b860; }
+    }
+    #closeModalBtn {
+        background: #333;
+        color: #fff;
+    }
+    #closeModalBtn:hover {
+        background: #444;
+    }
+    .notification-modal-content .close-icon {
+        position: absolute;
+        top: 10px; right: 15px;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+    .notification-modal-content .close-icon:hover {
+        color: #ff5555;
+    }
+    #modalEventName {
+        color: #83ffa6;
+        font-weight: 600;
+    }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="main.html" class="logo-link"> 
+        <div class="logo">
+            <img src="images/Logo1.png" alt="DubLive Events Logo">
+        </div>
+    </a>
+    
+    <div class="nav-links" id="navLinks">
+        <a href="main.html" title="Home"><i class="fas fa-home"></i></a> 
+    </div>
+</nav>
+<div id="searchContainer">
+    <div id="searchWrapper">
+        <input type="text" id="searchInput" placeholder="Search events by title, date, or venue...">
+        <button id="clearSearchButton" title="Clear Search" style="display:none;"><i class="fas fa-times"></i></button>
+        <button id="searchButton" title="Search"><i class="fas fa-search"></i></button>
+    </div>
+</div>
+
+<h2 class="section-title">All Upcoming Events</h2>
+
+<div id="filterContainer">
+    <button class="filter-btn active" data-category="All">All</button>
+    <button class="filter-btn" data-category="Concert">Concert</button>
+    <button class="filter-btn" data-category="Theater">Theater</button>
+    <button class="filter-btn" data-category="Family & Other">Family & Other</button>
+</div>
+<section class="events" id="mainEventsSection"></section>
+
+<!-- Notification Request Modal -->
+<div id="notificationModal">
+    <div class="notification-modal-content">
+        <span class="close-icon" id="closeModalIcon">&times;</span>
+        <h3>Get Notified</h3>
+        <p>Enter your details to get notified when tickets are released for <span id="modalEventName">this event</span></p>
+        <div class="form-group">
+            <label for="modalName">Your Name</label>
+            <input type="text" id="modalName" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+            <label for="modalPhone">TP Number</label>
+            <input type="tel" id="modalPhone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="btn-container">
+            <button id="closeModalBtn">Cancel</button>
+            <button id="sendRequestBtn">Send Request</button>
+        </div>
+    </div>
+</div>
+
+<footer id="footer">
+  <div class="footer-wrapper">
+    <div class="footer-left">
+      <img src="images/Logo1.png" alt="DubLive Events Logo" class="footer-logo">
+      
+      <p class="about-description">dubLive Events is dedicated to creating unforgettable experiences and organizing events that deliver the best in entertainment.
+        <br><br>
+        While the dubLive Tickets platform was initially designed to manage ticketing exclusively for dubLive's internal events, we are pleased to announce our plans to expand our services. We will soon begin facilitating ticketing solutions for your external events, providing you with our robust, seamless platform to enhance your own event management and customer experience.
+        <br><br>
+        Join us and be part of the future of event management! 🚀
+      </p>
+    </div>
+
+    <div class="footer-right">
+      <div class="contact-details">
+        <strong>Contact Us</strong>
+        <p>Email: <a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a></p>
+        <p>Phone: <a href="tel:+94716531817">+94 71 653 1817</a></p>
+        <p>Kurunegala, Sri Lanka</p>
+      </div>
+
+      <div class="social-icons">
+        <a href="https://www.instagram.com/dublive.events?igsh=MTJtYTcybzNjNmVxYw==" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.facebook.com/share/17BryR9HP8/?mibextid=wwXIfr" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="https://wa.me/94716531817" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="mailto:dubliveeventsnet@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="copyright-bar">
+    <p>&copy; 2025 dubLive Events. All Rights Reserved.
+    <a href="privacy.html">Privacy Policy</a>
+    </p>
+  </div>
+</footer>
+
+<script type="module">
+    import { collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { db } from "./auth.js"; // Firebase initialization
+
+    const eventsContainer = document.getElementById('mainEventsSection');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton'); 
+    const clearSearchButton = document.getElementById('clearSearchButton'); 
+    const sectionTitle = document.querySelector('.section-title');
+    const filterContainer = document.getElementById('filterContainer'); 
+    const filterButtons = document.querySelectorAll('.filter-btn'); 
+
+    let allEvents = []; 
+    let currentFilter = 'All'; 
+
+    // Helper function to format date string for sorting
+    function parseDate(dateString) {
+        return new Date(dateString);
+    }
+
+    // Helper function to safely format date and time, ensuring AM/PM is added
+    function formatDateTime(dateString, timeString) {
+        let dateObj;
+        const combinedDateTime = `${dateString}T${timeString || '00:00'}:00`;
+
+        try {
+            dateObj = new Date(combinedDateTime);
+            if (isNaN(dateObj.getTime())) {
+                dateObj = new Date(dateString);
+            }
+            if (isNaN(dateObj.getTime())) return { date: 'Date TBA', time: 'Time TBA' };
+
+            const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+
+            const date = dateObj.toLocaleDateString('en-US', dateOptions);
+            let time = 'Time TBA';
+            
+            if (timeString) {
+                 try {
+                    const [hours, minutes] = timeString.split(':').map(Number);
+                    const tempDate = new Date();
+                    tempDate.setHours(hours, minutes, 0, 0);
+                    time = tempDate.toLocaleTimeString('en-US', timeOptions);
+                } catch {
+                    time = timeString;
+                }
+            } else {
+                time = 'Time TBA';
+            }
+
+            return { date, time };
+        } catch (e) {
+            console.error("Error parsing date:", e);
+            return { date: 'Date TBA', time: 'Time TBA' };
+        }
+    }
+
+    /**
+     * Helper function to format the starting price from the database.
+     */
+    function formatStartingPrice(priceValue) {
+        if (priceValue === undefined || priceValue === null || priceValue === 0 || priceValue === "") {
+            return 'No data';
+        }
+        const priceNum = Number(priceValue);
+        if (isNaN(priceNum) || priceNum <= 0) {
+            return 'No data';
+        }
+        return ` ${priceNum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} LKR`;
+    }
+
+    async function loadEvents() {
+        try {
+            const eventsSnap = await getDocs(collection(db, "events"));
+            allEvents = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            eventsSnap.forEach(doc => {
+                const event = { id: doc.id, ...doc.data() };
+                const eventDate = parseDate(event.date);
+                
+                if (eventDate >= today) {
+                     event.time = event.time || '19:00'; 
+                     event.startingPrice = event.startingPrice !== undefined ? event.startingPrice : null;
+                     
+                     const category = event.category ? event.category.trim() : '';
+                     if (['concert', 'theater'].includes(category.toLowerCase())) {
+                        event.category = category;
+                     } else {
+                        event.category = 'Family & Other';
+                     }
+                    allEvents.push(event);
+                }
+            });
+
+            allEvents.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+            filterAndDisplayEvents();
+
+        } catch (error) {
+            console.error("Error loading events:", error);
+            eventsContainer.innerHTML = "<p style='text-align:center; padding: 2rem; color: #ff5555;'>Failed to load events. Please check your Firebase connection.</p>";
+        }
+    }
+
+    function filterAndDisplayEvents() {
+        const query = searchInput.value.toLowerCase().trim();
+        let filteredEvents = allEvents;
+
+        if (currentFilter !== 'All') {
+            filteredEvents = filteredEvents.filter(event => 
+                event.category.toLowerCase() === currentFilter.toLowerCase()
+            );
+        }
+        
+        if (query) {
+             filteredEvents = filteredEvents.filter(ev => 
+                ev.title.toLowerCase().includes(query) || 
+                (ev.venue && ev.venue.toLowerCase().includes(query)) ||
+                ev.date.includes(query) 
+            );
+        }
+        
+        if (query) {
+             sectionTitle.textContent = `Results for "${query}" (${currentFilter})`;
+        } else {
+            sectionTitle.textContent = `${currentFilter} Upcoming Events`;
+        }
+
+        displayEvents(filteredEvents);
+    }
+    
+    /**
+     * Renders the events using the homepage card structure, including icons.
+     */
+    function displayEvents(events) {
+        eventsContainer.innerHTML = '';
+        
+        if (events.length === 0) {
+            eventsContainer.innerHTML = "<p style='text-align:center; padding: 2rem; color: #777;'>No matching events are currently listed.</p>";
+            return;
+        }
+        
+        events.forEach(event => {
+            const { date: formattedDate, time: formattedTime } = formatDateTime(event.date, event.time);
+            const displayPrice = formatStartingPrice(event.startingPrice);
+            
+            // Check if event is not live
+            const isNotLive = event.status === "not live";
+            
+            // Display values based on status
+            const dateDisplay = isNotLive ? 'Revealing soon' : `${formattedDate} | ${formattedTime}`;
+            const venueDisplay = isNotLive ? 'Revealing soon' : (event.venue || 'Venue TBA');
+            const buttonText = isNotLive ? 'Notify ticket release' : 'Book Now';
+            const buttonClass = isNotLive ? 'book-now-btn notify-btn' : 'book-now-btn';
+            const buttonHref = isNotLive ? '#' : `home.html?id=${event.id}`;
+
+            const card = document.createElement('div');
+            card.classList.add('event-card');
+            
+            // Set the whole card to navigate on non-button clicks (only for live events)
+            card.addEventListener('click', (e) => {
+                // Only navigate if the click target is NOT the button or its icon
+                if (!e.target.closest('.book-now-btn') && !isNotLive) {
+                    window.location.href = `home.html?id=${event.id}`; 
+                }
+            });
+
+            // Card HTML structure matching index.html, including all icons
+            card.innerHTML = `
+                <div class="image-wrapper"> <img src="${event.flyerUrl || 'images/default-event.png'}" alt="${event.title}">
+                </div>
+                <div class="content">
+                    <h3>${event.title}</h3>
+                    <div class="details">
+                      <p><i class="fas fa-calendar-alt" style="margin-right: 5px;"></i> ${dateDisplay}</p>
+                      <p><i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i> ${venueDisplay}</p>
+                    </div>
+                    <span class="price"> ${displayPrice} Upwards</span>
+                    <a href="${buttonHref}" class="${buttonClass}" role="button" ${isNotLive ? `onclick="openNotificationModal('${event.id}', '${event.title}'); return false;"` : ''}>${buttonText} <i class="fas ${isNotLive ? 'fa-bell' : 'fa-ticket-alt'}"></i></a>
+                </div>
+            `;
+            eventsContainer.appendChild(card);
+        });
+    }
+
+    // === FILTER BUTTON HANDLER ===
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.getAttribute('data-category');
+            
+            searchInput.value = '';
+            clearSearchButton.style.display = 'none';
+
+            filterAndDisplayEvents();
+        });
+    });
+    // === END FILTER BUTTON HANDLER ===
+
+    // === UPDATED SEARCH FUNCTIONALITY ===
+    function handleSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        clearSearchButton.style.display = query ? 'flex' : 'none';
+        filterAndDisplayEvents();
+    }
+
+    searchButton.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); 
+            handleSearch();
+        }
+    });
+    searchInput.addEventListener('input', handleSearch);
+
+    clearSearchButton.addEventListener('click', () => {
+        searchInput.value = '';
+        handleSearch();
+    });
+    // === END UPDATED SEARCH FUNCTIONALITY ===
+
+    loadEvents();
+
+    // REMOVED JAVASCRIPT FOR HAMBURGER MENU/OVERLAY (as per home.html)
+
+    // Notification Modal Functionality
+    const notificationModal = document.getElementById('notificationModal');
+    const modalEventName = document.getElementById('modalEventName');
+    const modalName = document.getElementById('modalName');
+    const modalPhone = document.getElementById('modalPhone');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeModalIcon = document.getElementById('closeModalIcon');
+
+    let selectedEventId = null;
+
+    window.openNotificationModal = function(eventId, eventTitle) {
+        selectedEventId = eventId;
+        modalEventName.textContent = eventTitle;
+        modalName.value = '';
+        modalPhone.value = '';
+        notificationModal.classList.add('show');
+    };
+
+    function closeModal() {
+        notificationModal.classList.remove('show');
+        selectedEventId = null;
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    closeModalIcon.addEventListener('click', closeModal);
+
+    notificationModal.addEventListener('click', (e) => {
+        if (e.target === notificationModal) {
+            closeModal();
+        }
+    });
+
+    // Handle Send Request button click
+    document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+        const name = modalName.value.trim();
+        const phone = modalPhone.value.trim();
+        
+        if (!name || !phone) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        try {
+            const now = new Date();
+            const requestDate = now.toISOString().split('T')[0];
+            const requestTime = now.toTimeString().split(' ')[0];
+            const uniqueId = 'wait_' + Date.now();
+            
+            await addDoc(collection(db, "waitings"), {
+                uniqueId: uniqueId,
+                eventId: selectedEventId,
+                name: name,
+                phone: phone,
+                requestDate: requestDate,
+                requestTime: requestTime
+            });
+            
+            alert('Request sent successfully! We will notify you when tickets are released.');
+            closeModal();
+        } catch (error) {
+            console.error('Error saving request:', error);
+            alert('Error sending request. Please try again.');
+        }
+    });
+</script>
+
+</body>
+</html>

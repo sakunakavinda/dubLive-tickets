@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dubLive Tickets - Privacy Policy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+    :root {
+      --primary: #00d4aa;
+      --primary-dark: #00b894;
+      --bg-dark: #0d0d0f;
+      --bg-card: #16161a;
+      --bg-hover: #1c1c22;
+      --text-white: #ffffff;
+      --text-gray: #9ca3af;
+      --text-light: #d1d5db;
+      --border: #27272a;
+      --gradient: linear-gradient(135deg, #00d4aa 0%, #00f5c4 100%);
+    }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-white);
+      line-height: 1.6;
+      padding-top: 64px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: var(--primary-dark);
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(13, 13, 15, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-white);
+    }
+    .nav-logo img {
+      height: 36px;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      flex-grow: 1;
+    }
+
+    h1,
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-light);
+    }
+
+    ul {
+      margin-bottom: 1rem;
+      padding-left: 20px;
+      list-style-type: disc;
+      color: var(--text-light);
+    }
+
+    ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+
+    footer {
+      padding: 4rem 2rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-logo img {
+      height: 36px;
+    }
+
+    .footer-brand p {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .footer-column h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-column a {
+      color: var(--text-gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-column a:hover {
+      color: var(--primary);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-bottom p {
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border-radius: 10px;
+      color: var(--text-gray);
+      transition: all 0.2s;
+    }
+
+    .social-links a:hover {
+      background: var(--primary);
+      color: #000;
+    }
+
+    @media (max-width: 900px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 0 1rem;
+      }
+      
+      body {
+        padding-top: 60px;
+      }
+
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      footer {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a href="main.html" class="nav-logo">
+      <img src="images/Logo1.png" alt="dubLive" />
+    </a>
+  </nav>
+
+  <div class="container">
+    <h1>Privacy Policy for dubLive Tickets</h1>
+    <p>
+      At dubLive Tickets, we are committed to protecting the privacy and security of our customers’ personal
+      information. This Privacy Policy outlines how we collect, use, and safeguard your information when you
+      purchase tickets on our website.
+    </p>
+
+    <p><strong>Last Updated: October 24, 2025</strong></p>
+
+    <h2>1. Data Collection and Usage</h2>
+    <p>
+      When utilizing our streamlined guest checkout service, we strictly collect only the data necessary to process and
+      secure your transaction. We do not engage in the storage of extraneous personal information.
+    </p>
+    <ul>
+      <li><strong>Transaction Identity Data:</strong> Your name, NIC, email, and phone number for ticket issuance and
+        verification.</li>
+      <li><strong>Operational Contact Information:</strong> Used only for delivery or payment updates.</li>
+      <li><strong>Financial Transaction Details:</strong> Payment handled by third-party gateways — we do not store card
+        details.</li>
+      <li><strong>Purchase Record:</strong> Event, ticket class, quantity, and price.</li>
+      <li><strong>Technical Metadata:</strong> IP, browser, and device data for fraud prevention and performance.</li>
+    </ul>
+
+    <h2>2. Purpose and Principle of Data Use</h2>
+    <ul>
+      <li>Processing and fulfillment of ticket orders.</li>
+      <li>Transactional communication and customer support.</li>
+      <li>Refund and post-purchase management.</li>
+      <li>Security and fraud prevention.</li>
+    </ul>
+
+    <h2>3. Data Disclosure and Confidentiality</h2>
+    <ul>
+      <li><strong>Service Providers:</strong> Payment and email partners under strict contracts.</li>
+      <li><strong>Event Organizers:</strong> Name and ticket ID shared only for entry validation.</li>
+      <li><strong>Legal Obligations:</strong> Disclosures required by law or regulation.</li>
+    </ul>
+
+    <h2>4. Data Security and Retention</h2>
+    <p>
+      We employ advanced encryption and secure hosting to protect your data. The guest checkout model ensures minimal
+      long-term storage of personal information.
+    </p>
+
+    <h2>5. User Rights and Controls</h2>
+    <ul>
+      <li><strong>Correction or Deletion:</strong> Email us to request updates or removal.</li>
+      <li><strong>Cookie Management:</strong> Manage preferences through your browser settings.</li>
+    </ul>
+
+    <h2>6. Contact and Inquiries</h2>
+    <p>
+      <strong>Email:</strong> <a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a><br>
+      <strong>Phone:</strong> <a href="tel:+94716531817">+94 71 653 1817</a>
+    </p>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="images/Logo1.png" alt="dubLive" />
+        </div>
+        <p>Your trusted platform for live event ticketing. Experience the moment, live.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="searchTickets.html">Search Tickets</a></li>
+          <li><a href="main.html">Home</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a></li>
+          <li><a href="tel:+94716531817">+94 71 653 1817</a></li>
+          <li><a href="#">Kurunegala, Sri Lanka</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Customer Care</h4>
+        <ul>
+          <li><a href="terms.html">Terms & Conditions</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 dubLive. All rights reserved.</p>
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/94716531817" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+what is a requet
+why cant i use in free limit without eneble billing
+what are the other best AI tool that are totally free
+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
+
+
+code sales.html
+make the UI same as in admin for organizer (ticket remainin other 2 done)
+display total tickets sold in organizer dashboard with breakdown and income for each category
+hamburger menu in organizer is short
+generate ticket back and completeion goes to event-details. should go to ticket-maganegement instead

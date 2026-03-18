@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms and Conditions - dubLive Tickets</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+    :root {
+      --primary: #00d4aa;
+      --primary-dark: #00b894;
+      --bg-dark: #0d0d0f;
+      --bg-card: #16161a;
+      --bg-hover: #1c1c22;
+      --text-white: #ffffff;
+      --text-gray: #9ca3af;
+      --text-light: #d1d5db;
+      --border: #27272a;
+      --gradient: linear-gradient(135deg, #00d4aa 0%, #00f5c4 100%);
+    }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-white);
+      line-height: 1.6;
+      padding-top: 64px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: var(--primary-dark);
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(13, 13, 15, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-white);
+    }
+    .nav-logo img {
+      height: 36px;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      flex-grow: 1;
+    }
+
+    h1,
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: var(--text-white);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-light);
+    }
+
+    ul {
+      margin-bottom: 1rem;
+      padding-left: 20px;
+      list-style-type: disc;
+      color: var(--text-light);
+    }
+
+    ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    .contact-table {
+      width: 100%;
+      margin: 1.5rem 0;
+      border-collapse: collapse;
+      color: var(--text-light);
+    }
+
+    .contact-table th,
+    .contact-table td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .contact-table th {
+      background-color: rgba(0, 212, 170, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    footer {
+      padding: 4rem 2rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-logo img {
+      height: 36px;
+    }
+
+    .footer-brand p {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .footer-column h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-column a {
+      color: var(--text-gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-column a:hover {
+      color: var(--primary);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-bottom p {
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border-radius: 10px;
+      color: var(--text-gray);
+      transition: all 0.2s;
+    }
+
+    .social-links a:hover {
+      background: var(--primary);
+      color: #000;
+    }
+
+    @media (max-width: 900px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 0 1rem;
+      }
+
+      body {
+        padding-top: 60px;
+      }
+
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      h3 {
+        font-size: 1rem;
+      }
+
+      footer {
+        padding: 2rem 1rem;
+      }
+
+      .contact-table th,
+      .contact-table td {
+        padding: 10px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a href="main.html" class="nav-logo">
+      <img src="images/Logo1.png" alt="dubLive" />
+    </a>
+  </nav>
+
+  <div class="container">
+    <h1>Terms and Conditions for dubLive Tickets</h1>
+    <p><strong>Last Updated: November 6, 2025</strong></p>
+
+    <p>Welcome to <strong>dubLive Tickets</strong> ("we," "our," or "us"). These Terms and Conditions ("Terms") govern your use of the dubLive Tickets event ticket booking platform, including the website (the specific URL is assumed to be the point of access), our services, and any related applications. By accessing or using our services, you agree to be bound by these Terms, along with our Privacy Policy.</p>
+
+    <p>If you have any questions or complaints, you may contact us at the designated email address provided below.</p>
+
+    <h2>2. User Agreement and Account</h2>
+
+    <h3>Acceptance of Terms</h3>
+    <p>By using our services, you represent that you are at least 18 years of age (or the legal age of majority in your jurisdiction) and capable of entering into a binding agreement. If you are using the services on behalf of an entity, you represent that you have the authority to bind that entity to these Terms.</p>
+
+    <h3>Account Registration</h3>
+    <p>When you create an account, you agree to:</p>
+    <ul>
+      <li>Provide <strong>accurate, current, and complete</strong> information as requested during registration.</li>
+      <li>Maintain the security of your password and identification.</li>
+      <li>Be solely responsible for all activities that occur under your account, regardless of whether such activities were authorized by you.</li>
+    </ul>
+
+    <h3>Information Submitted</h3>
+    <p>You must only submit accurate and truthful information to us, and you are responsible for keeping it up to date. We reserve the right to request documentation to verify any information you have provided, particularly for high-value or high-volume transactions.</p>
+
+    <h2>3. Ticket Purchases and Services</h2>
+
+    <h3>Ticket Availability and Pricing</h3>
+    <ul>
+      <li>All tickets are offered subject to availability and acceptance by dubLive Tickets.</li>
+      <li>Prices listed on our platform are set by the event organizer and are inclusive of any applicable taxes or service fees, unless explicitly stated otherwise.</li>
+      <li>We reserve the right to correct any errors in pricing or event details and to cancel or reject any order placed at an incorrect price.</li>
+    </ul>
+
+    <h3>Order Confirmation</h3>
+    <p>Your ticket purchase is <strong>not complete</strong> until you receive an official booking confirmation email from dubLive Tickets. This confirmation will contain your Ticket ID and necessary details for event access.</p>
+
+    <h3>Payment</h3>
+    <ul>
+      <li>Payment is required in full at the time of booking.</li>
+      <li>We utilize third-party payment processors for all transactions. By submitting your payment details, you agree to their terms and conditions.</li>
+      <li><strong>All credit and debit card details will not be stored, sold, shared, rented, or leased to any third parties under any circumstances by dubLive Tickets.</strong></li>
+    </ul>
+
+    <h3>Ticket Validity and Access</h3>
+    <ul>
+      <li>Tickets purchased are valid only for the specific event, date, time, and venue indicated on the ticket.</li>
+      <li>We are not responsible for lost, stolen, or damaged tickets.</li>
+    </ul>
+
+    <h2>4. Cancellations, Refunds, and Event Changes</h2>
+
+    <h3>Refund Policy (Purchased Tickets)</h3>
+    <p><strong>All ticket sales are final.</strong> Refunds or exchanges are generally <strong>not permitted</strong> unless an event is officially cancelled or postponed by the event organizer, or as required by applicable law.</p>
+
+    <h3>Event Cancellation or Postponement</h3>
+    <ul>
+      <li>If an event is cancelled, we will initiate a full refund of the ticket face value (excluding any non-refundable service fees) on behalf of the event organizer.</li>
+      <li>If an event is postponed, we will provide details on new dates and refund options as soon as they are made available by the event organizer.</li>
+    </ul>
+
+    <h3>Ticket Management (Transfer/Cancellation)</h3>
+    <ul>
+      <li>You may manage your purchased tickets (e.g., attempt to transfer to another user) only through the functionalities explicitly provided on the dubLive platform (as referenced in the file structure like <code>transfer.html</code>).</li>
+      <li><strong>Ticket Cancellation by Admin:</strong> You acknowledge that dubLive Admin reserves the right to cancel any purchased ticket at its sole discretion, for reasons including, but not limited to, suspected fraudulent activity or non-payment verification (as managed in <code>ticket-management.html</code>). In such cases, a proportional refund will be processed where appropriate.</li>
+    </ul>
+
+    <h2>5. Platform Use and Intellectual Property</h2>
+
+    <h3>Prohibited Conduct</h3>
+    <p>You agree not to use the dubLive Tickets platform for any unlawful purpose or in any way that interrupts, damages, or impairs the service. Prohibited activities include:</p>
+    <ul>
+      <li>Unauthorized resale of tickets outside the approved transfer mechanisms.</li>
+      <li>Attempting to interfere with the website's security features.</li>
+      <li>Impersonating any person or entity.</li>
+    </ul>
+
+    <h3>Intellectual Property</h3>
+    <p>All content on the dubLive Tickets platform is the exclusive property of dubLive Tickets and is protected by intellectual property laws. You may not reproduce, modify, or distribute any part of the platform without our express written permission.</p>
+
+    <h2>6. Right to Disclosure and Indemnity</h2>
+
+    <h3>dubLive's Right to Disclose</h3>
+    <p>You acknowledge and agree that <strong>dubLive Tickets reserves the right to disclose your personal information</strong> to legal, regulatory, governmental, tax, law enforcement, or other authorities if we have reasonable grounds to believe such disclosure is necessary. This aligns with our obligations and is not subject to a claim from you against dubLive.</p>
+
+    <h3>Indemnity</h3>
+    <p>You agree to indemnify, defend, and hold harmless dubLive Tickets from and against any and all claims, damages, obligations, losses, liabilities, costs, or debt arising from: (i) your use of and access to the service; (ii) your violation of any term of these Terms; or (iii) your violation of any third-party right, including, without limitation, any copyright, property, or privacy right.</p>
+
+    <h2>7. Changes to the Terms and Conditions</h2>
+    <p>dubLive Tickets will regularly review and assess the adequacy of these Terms. We reserve the right to modify or update the Terms at any time. Any changes will be published on our website, with the policy clearly marked as <strong>"Last Updated"</strong> along with the corresponding date to reflect the most recent revisions.</p>
+
+    <h2>8. Contacting dubLive Tickets</h2>
+    <p>For assistance with any technical matters, service inquiries, or to submit a <strong>User Data Deletion Request</strong>, please contact us:</p>
+
+    <table class="contact-table">
+      <thead>
+        <tr>
+          <th>Contact Reason</th>
+          <th>Email Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>General Inquiries / Support</strong></td>
+          <td><a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a></td>
+        </tr>
+        <tr>
+          <td><strong>Data Deletion Request</strong></td>
+          <td><a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>To process a <strong>Data Deletion Request</strong>, please use the subject "Data Deletion Request" and include your registered email and phone number. Our team will process your request within 2 to 3 business days.</p>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="images/Logo1.png" alt="dubLive" />
+        </div>
+        <p>Your trusted platform for live event ticketing. Experience the moment, live.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="searchTickets.html">Search Tickets</a></li>
+          <li><a href="main.html">Home</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:dubliveeventsnet@gmail.com">dubliveeventsnet@gmail.com</a></li>
+          <li><a href="tel:+94716531817">+94 71 653 1817</a></li>
+          <li><a href="#">Kurunegala, Sri Lanka</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Customer Care</h4>
+        <ul>
+          <li><a href="terms.html">Terms & Conditions</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 dubLive. All rights reserved.</p>
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/94716531817" target="_blank"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

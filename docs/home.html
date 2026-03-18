@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Details - dubLive Tickets</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ------------------------------------------------------------------ */
+      /* PROFESSIONAL VISION STYLES */
+      /* ------------------------------------------------------------------ */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* --- PROFESSIONAL COLOR PALETTE --- */
+      :root {
+        --color-background: #0a0a0a;
+        --color-text-main: #f0f0f0;
+        --color-text-muted: #c0c0c0;
+        --primary: #00efa3;
+        /* Muted Aqua/Teal for Accents and Main Highlight (Primary is still used for content buttons/title) */
+        --color-accent-primary: #1dc7a5;
+        /* Slightly less aggressive Cyan for secondary elements */
+        --color-accent-secondary: #00ef58;
+        --color-dark-element: #111;
+        --color-button-dark: #282828;
+        --color-footer-text: #99feaf; /* Kept for contrast in footer */
+        /* NEW NAV COLORS for consistency with all-events.html */
+        --color-nav-accent: #00ffcc;
+        --color-nav-bg: rgba(0, 0, 0, 0.7);
+        --color-nav-shadow: rgba(0, 255, 204, 0.1);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--color-background);
+        color: var(--color-text-main);
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      /* Utility Class for Professional Title Formatting */
+      .title-professional {
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+        
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* NAV BAR STYLES */
+      /* ------------------------------------------------------------------ */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        background: rgba(13, 13, 15, 0.25);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-white);
+      }
+
+      .nav-logo img {
+        height: 36px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        color: var(--text-gray);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--primary);
+      }
+
+      .menu-footer {
+        display: none;
+      }
+
+      #hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        padding: 5px;
+      }
+
+      #hamburger span {
+        width: 24px;
+        height: 2px;
+        background: var(--primary);
+        transition: all 0.3s ease;
+        transform-origin: center;
+        z-index: 1005;
+      }
+
+      /* Hamburger Animation */
+      #hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+      #hamburger.active span:nth-child(2) {
+        opacity: 0;
+        transform: scale(0);
+      }
+      #hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* END NAV BAR STYLES */
+      /* ------------------------------------------------------------------ */
+
+      /* Main Content Wrapper */
+      .wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        padding-top: 100px;
+      }
+
+      /* 🚀 NEW STYLES FOR OVERLAY IMAGE EFFECT 🚀 */
+      .cover-image {
+        position: relative;
+        margin-bottom: 40px;
+        overflow: hidden;
+        background: var(--color-background);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(24, 24, 24, 0.2);
+        height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .cover-image img#eventCover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(8px);
+        transform: scale(1.05);
+        transition: filter 0.5s ease;
+        border-radius: 16px;
+      }
+
+      /* Overlay for the full-size image */
+      .full-size-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .full-size-overlay img#eventCoverFull {
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(237, 254, 250, 0.5);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .full-size-overlay img#eventCoverFull:hover {
+        transform: scale(1.02);
+      }
+      /* 🚀 END NEW STYLES 🚀 */
+
+      /* Event Details Layout */
+      .event-details {
+        display: flex;
+        gap: 60px;
+        margin-bottom: 60px;
+      }
+      .details {
+        flex: 2;
+      }
+
+      /* Typography and Headings */
+      #eventTitle {
+        color: var(--primary);
+        margin-bottom: 15px;
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      /* Description Highlight Box */
+      .description-box {
+        background: #111; /* Darker background than the main content */
+        border-left: 5px solid var(--color-accent-secondary); /* Vertical green accent line */
+        padding: 20px 25px;
+        /* 🚀 NEW: Reduced margin */
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Description style improvement (nested in the box) */
+      .description-box .description {
+        /* 🚀 NEW: SCROLLING BOX PROPERTIES */
+        max-height: 250px; /* Fixed height for the scrollable content area */
+        overflow-y: auto; /* Enables vertical scrolling when content exceeds max-height */
+        padding-right: 10px; /* Space for the scrollbar */
+
+        margin-bottom: 0;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: rgb(239, 255, 235);
+        white-space: pre-wrap;
+        transition: none; /* Remove transitions */
+        position: relative;
+      }
+
+      /* Removed description-toggle styles as they are no longer needed */
+
+      /* Info Section (Icons & Details) */
+      .details .info {
+        margin-bottom: 30px;
+        padding-left: 0;
+      }
+      .details .info p {
+        margin: 15px 0;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+      }
+      .details .info i {
+        color: var(--color-accent-secondary);
+        margin-right: 15px;
+        font-size: 1.2rem;
+        width: 20px;
+        text-align: center;
+      }
+      .details .info strong {
+        font-weight: 500;
+        color: var(--color-text-main);
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* 🚀 Countdown Timer Styling */
+      /* ------------------------------------------------------------------ */
+      #countdownContainer {
+        background: linear-gradient(
+          135deg,
+          #1d1d1d,
+          #001a11
+        ); /* Dark green/black gradient */
+        border: 1px solid var(--color-accent-primary);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(29, 199, 165, 0.2);
+      }
+
+      #countdownContainer h3 {
+        color: var(--color-accent-secondary);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+
+      .countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .countdown-box {
+        background: #000000;
+        padding: 10px 15px;
+        border-radius: 8px;
+        min-width: 70px;
+      }
+
+      .countdown-box span {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--color-accent-primary);
+      }
+
+      .countdown-box small {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin-top: -5px;
+      }
+      /* ------------------------------------------------------------------ */
+
+      /* Ticket Categories Section */
+      .ticket-categories {
+        background: var(--color-dark-element);
+        padding: 25px;
+        border-radius: 12px;
+        flex: 1; /* Retained flex property for initial column layout */
+      }
+      .ticket-categories h2 {
+        margin-bottom: 20px;
+        color: var(--color-accent-primary);
+        font-size: 1.5rem;
+        border-bottom: 2px solid rgba(29, 199, 165, 0.3);
+        padding-bottom: 5px;
+      }
+      .ticket {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+      .ticket p:first-child {
+        color: var(--color-text-main);
+      }
+      .ticket .price {
+        color: var(--color-text-main);
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+      .ticket-divider {
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin: 0;
+      }
+
+      /* Buttons */
+      button {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 20px;
+        transition:
+          background 0.3s,
+          transform 0.1s;
+      }
+      #contactDetailsBtn {
+        background: transparent;
+        color: rgb(255, 255, 255);
+        border: 1px solid var(--color-accent-primary);
+        font-size: 1rem;
+        border-radius: 22rem;
+      }
+      #contactDetailsBtn:hover {
+        background: var(--color-accent-primary);
+        color: var(--color-background);
+        transform: translateY(-2px);
+      }
+      #buyTicketsBtn {
+        background: var(--primary);
+        color: var(--color-background);
+        width: 100%;
+        font-size: 1.3rem;
+        border-radius: 22rem;
+        margin-top: 0;
+      }
+      #buyTicketsBtn:hover {
+        background: #18a383;
+        transform: translateY(-2px);
+      }
+
+      /* FIX: New Wrapper for the Button (Full Width at Bottom) */
+      .buy-button-wrapper {
+        max-width: 1200px;
+        margin: 40px auto 60px auto; /* Margin above footer */
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      /* FIX: Breathing Animation */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(29, 199, 165, 0.7);
+          transform: scale(1);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(29, 199, 165, 0);
+          transform: scale(1.02);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(29, 199, 165, 0);
+          transform: scale(1);
+        }
+      }
+      #buyTicketsBtn {
+        animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+      }
+      /* END FIX: Breathing Animation */
+
+      /* ------------------------------------------------------------------ */
+      /* 🏅 SPONSOR STYLES (MODIFIED FOR LARGER MAIN SPONSOR) 🏅 */
+      /* ------------------------------------------------------------------ */
+      .sponsors-section {
+        margin-bottom: 60px;
+        padding: 30px;
+        background: var(--color-dark-element);
+        border-radius: 12px;
+      }
+
+      .sponsors-section h2 {
+        text-align: center;
+        font-size: 2rem; /* Slightly larger */
+        margin-bottom: 40px; /* More space below */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+
+        /* Neon/Gradient Effect for the text */
+        background: linear-gradient(90deg, #00ef58 0%, #1dc7a5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent; /* Fallback for older browsers */
+
+        /* Subtle divider */
+        border-bottom: 2px solid rgba(29, 199, 165, 0.2);
+        display: inline-block;
+        padding-bottom: 8px;
+        /* Center the inline block */
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        max-width: 400px;
+      }
+
+      /* Main Sponsor Ad - Increased Size and Impact */
+      .main-sponsor {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px; /* Increased padding */
+        border: 3px solid rgba(29, 199, 165, 0.4); /* Thicker border */
+        border-radius: 16px; /* Larger radius */
+        background: #161616;
+        transition: border-color 0.3s;
+      }
+
+      .main-sponsor:hover {
+        border-color: var(
+          --color-accent-primary
+        ); /* Highlight border on hover */
+      }
+
+      .main-sponsor h3 {
+        color: var(--color-text-main);
+        font-size: 1.5rem; /* Larger title */
+        margin-bottom: 20px;
+      }
+
+      .main-sponsor a {
+        display: inline-block;
+        max-width: 800px; /* Increased maximum width */
+        width: 100%;
+      }
+
+      .main-sponsor img {
+        width: 80%;
+        height: auto;
+        max-height: 400px; /* Constrain height to prevent overly large images */
+        border-radius: 10px; /* Slightly larger radius */
+        object-fit: contain;
+        transition: transform 0.3s ease;
+      }
+
+      .main-sponsor img:hover {
+        transform: scale(
+          1.01
+        ); /* Reduced scale for subtler effect on a larger image */
+      }
+
+      /* Sub Sponsors Gallery */
+      .sub-sponsors-container {
+        padding: 10px 0;
+      }
+
+      .sub-sponsors-gallery {
+        display: flex;
+        flex-wrap: wrap; /* Allows wrapping to new lines */
+        gap: 20px;
+        justify-content: center;
+        padding: 20px 0;
+
+        /* IMPORTANT: Remove these if they are still there */
+        height: auto !important; /* Ensures the container grows with the rows */
+        white-space: normal; /* Allows content to break to the next line */
+        overflow-x: visible; /* Stop it from trying to scroll horizontally */
+      }
+
+      .sub-sponsors-gallery::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+      }
+
+      .sub-sponsor-item {
+        flex: 0 0 calc(50% - 10px);
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #111;
+        border-radius: 12px;
+        overflow: hidden;
+        padding: 20px;
+        box-sizing: border-box;
+        border: 1px solid #222;
+
+        /* NEW: Prepares the container for the popup effect */
+        transition:
+          transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+          box-shadow 0.4s ease,
+          border-color 0.4s ease;
+        cursor: pointer;
+      }
+
+      .sub-sponsor-item:hover {
+        transform: scale(1.05); /* Makes the whole box pop up */
+        border-color: var(--color-accent-primary);
+        box-shadow: 0 10px 20px rgba(29, 199, 165, 0.2);
+        z-index: 2; /* Ensures it stays on top of other boxes while popping */
+      }
+
+      .sub-sponsor-item img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+
+        /* NEW: Smooth transition for the image zoom */
+        transition: transform 0.4s ease;
+      }
+
+      .sub-sponsor-item:hover img {
+        transform: scale(1.1); /* Zooms the logo inside the popping box */
+      }
+      /* ------------------------------------------------------------------ */
+
+      /* ======================================= */
+      /* *** FOOTER STYLES (UPDATED TO MATCH main.html) *** */
+      /* ======================================= */
+      :root {
+        --primary: #00efa3;
+        --primary-dark: #00b894;
+        --bg-dark: #0d0d0f;
+        --bg-card: #16161a;
+        --bg-hover: #1c1c22;
+        --text-white: #ffffff;
+        --text-gray: #9ca3af;
+        --text-light: #d1d5db;
+        --border: #27272a;
+        --gradient: linear-gradient(135deg, #00d4aa 0%, #00f5c4 100%);
+      }
+
+      footer {
+        padding: 4rem 2rem 2rem;
+        border-top: 1px solid var(--border);
+      }
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 3rem;
+      }
+
+      .footer-brand {
+        max-width: 300px;
+      }
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-white);
+        margin-bottom: 1.25rem;
+      }
+      .footer-logo img {
+        height: 36px;
+      }
+      .footer-brand p {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+        line-height: 1.7;
+      }
+      .footer-column h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-white);
+        margin-bottom: 1.25rem;
+        margin-left: 0;
+      }
+      .footer-column ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        margin-left: 0;
+      }
+      .footer-column li {
+        margin-bottom: 0.75rem;
+        margin-left: 0;
+        padding-left: 0;
+      }
+      .footer-column a {
+        color: var(--text-gray);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      .footer-column a:hover {
+        color: var(--primary);
+      }
+      .footer-bottom {
+        max-width: 1200px;
+        margin: 3rem auto 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .footer-bottom p {
+        color: var(--text-gray);
+        font-size: 0.85rem;
+      }
+  .social-links {
+    display: flex;
+    gap: 12px;
+  }
+  .social-links a {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Instagram - Purple to Pink Gradient */
+  .social-links a[href*="instagram"] {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    background-size: 400% 400%;
+  }
+  .social-links a[href*="instagram"]:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(131, 58, 180, 0.4);
+  }
+  
+  /* Facebook - Blue Gradient */
+  .social-links a[href*="facebook"] {
+    background: linear-gradient(135deg, #4267B2, #1877F2);
+    background-size: 400% 400%;
+  }
+  .social-links a[href*="facebook"]:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
+  }
+  
+  /* WhatsApp - Green to Teal Gradient */
+  .social-links a[href*="wa.me"] {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    background-size: 400% 400%;
+  }
+  .social-links a[href*="wa.me"]:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+  }
+  
+  /* Email - Gray to Accent Gradient */
+  .social-links a[href^="mailto"] {
+    background: linear-gradient(135deg, #6b7280, #9ca3af);
+    background-size: 400% 400%;
+  }
+  .social-links a[href^="mailto"]:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(156, 163, 175, 0.4);
+  }
+  
+  /* Base hover animation for gradient movement */
+  .social-links a:hover {
+    animation: gradientShift 2s ease-in-out infinite;
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+      /* Mobile Menu Styles */
+      @media (max-width: 900px) {
+        #hamburger {
+          display: flex;
+        }
+        #menuOverlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s;
+          z-index: 999;
+          pointer-events: none;
+        }
+        #menuOverlay.active {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+        }
+        .nav-links {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 300px;
+          height: 100vh;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 5rem 2rem 2rem;
+          gap: 0;
+          background: rgba(10, 10, 12, 0.85);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+          transition: right 0.3s ease;
+          z-index: 1000;
+          overflow-y: auto;
+        }
+        .nav-links a {
+          position: relative;
+          z-index: 1002;
+        }
+        .nav-links.active {
+          right: 0;
+        }
+        .nav-links a {
+          font-size: 1.1rem;
+          padding: 0.75rem 0;
+          width: 100%;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .menu-footer {
+          display: block;
+          width: 100%;
+          text-align: center;
+          margin-top: auto;
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .menu-footer p {
+          font-size: 0.75rem;
+          color: var(--text-gray);
+          line-height: 1.6;
+        }
+        .menu-footer span {
+          color: var(--primary);
+        }
+      }
+
+      /* Page Transition Styles */
+      .page-transition {
+        position: fixed;
+        inset: 0;
+        background: #0a0a0f;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease;
+      }
+      .page-transition.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Mobile Overrides */
+      @media (max-width: 768px) {
+        /* Navbar Mobile Styles */
+        .logo {
+          height: 30px;
+        }
+        nav {
+          padding: 0.8rem 1rem;
+        }
+
+        .wrapper {
+          padding-top: 80px;
+        }
+
+        /* Main Content Mobile Styles */
+        #eventTitle {
+          font-size: 1.8rem;
+          margin-bottom: 10px;
+        }
+        .event-details {
+          flex-direction: column;
+          gap: 40px;
+        }
+
+        /* Mobile for cover-image */
+        .cover-image {
+          height: 50vh;
+          margin-bottom: 30px;
+        } /* Adjust height for smaller screens */
+        .full-size-overlay img#eventCoverFull {
+          max-width: 95%; /* More space on smaller screens */
+          max-height: 95%;
+        }
+
+        /* Description Box Mobile */
+        .description-box {
+          padding: 15px;
+          margin-bottom: 20px;
+        }
+        .description-box .description {
+          font-size: 1rem;
+          max-height: 250px !important; /* Enforce scrollable height on mobile */
+        }
+
+        /* Removed all description toggle/expansion CSS */
+
+        /* Countdown Mobile Adjustments */
+        #countdownContainer h3 {
+          font-size: 1.1rem;
+        }
+        .countdown-box {
+          min-width: 60px;
+          padding: 8px 10px;
+        }
+        .countdown-box span {
+          font-size: 1.5rem;
+        }
+        .countdown-timer {
+          gap: 10px;
+        }
+
+        .ticket-categories {
+          padding: 20px;
+          flex: none; /* Reset flex on mobile */
+          width: 100%;
+          margin-top: 0; /* Align with other content */
+        }
+        .ticket-categories h2 {
+          font-size: 1.3rem;
+          margin-bottom: 15px;
+        }
+        .ticket {
+          font-size: 1rem;
+        }
+        .ticket .price {
+          font-size: 1.1rem;
+        }
+
+        /* Sponsors Mobile */
+        .sponsors-section {
+          padding: 20px;
+          margin-bottom: 40px;
+        }
+        .sponsors-section h2 {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+        }
+
+        /* Main Sponsor Mobile - Ensure image scales well */
+        .main-sponsor {
+          padding: 20px;
+          border-radius: 12px;
+        }
+        .main-sponsor a {
+          max-width: 100%;
+        } /* Allow max width on mobile */
+        .main-sponsor img {
+          max-height: 200px;
+        } /* Smaller constraint on mobile */
+
+        /* 🚨 FIX: Sub-sponsors now display in a wrapping 3-column grid */
+        .sub-sponsors-gallery {
+          overflow-x: hidden;
+          white-space: normal;
+          padding-bottom: 0;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .sub-sponsor-item {
+          /* Changed from 30% to roughly 50% */
+          flex: 0 0 calc(50% - 5px);
+          max-width: none;
+          height: 100px; /* Increased height slightly for better visibility */
+          padding: 5px;
+        }
+      }
+
+      /* ======================================= */
+      /* *** FOOTER MEDIA QUERY (UPDATED TO MATCH main.html) *** */
+      /* ======================================= */
+      @media (max-width: 900px) {
+        .footer-content {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        .footer-bottom {
+          flex-direction: column;
+          gap: 1.5rem;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-transition" id="pageTransition"></div>
+
+    <nav>
+      <a href="main.html" class="nav-logo">
+        <img src="images/Logo1.png" alt="dubLive" />
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="searchTickets.html">Tickets</a>
+        <a href="index.html">Exit</a>
+        <div class="menu-footer">
+          <p>Designed and developed by <span>dubLive Systems</span> v1.3.1</p>
+        </div>
+      </div>
+      <div id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </nav>
+
+    <div id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="wrapper">
+      <div class="cover-image">
+        <img
+          id="eventCover"
+          src="images/default-event.png"
+          alt="Event Cover Background"
+        />
+
+        <div class="full-size-overlay">
+          <img
+            id="eventCoverFull"
+            src="images/default-event.png"
+            alt="Event Flyer"
+          />
+        </div>
+      </div>
+
+      <main>
+        <section class="event-details">
+          <div class="details">
+            <h1 id="eventTitle" class="title-professional">Event Title</h1>
+
+            <div class="description-box" id="descriptionBox">
+              <p id="eventDescription" class="description">Loading...</p>
+            </div>
+            <div class="info">
+              <p>
+                <i class="fas fa-calendar-alt"></i>
+                <span id="eventDate">Not scheduled</span>
+              </p>
+              <p>
+                <i class="fas fa-clock"></i>
+                <span id="eventTime">Not scheduled</span>
+              </p>
+              <p>
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="eventVenue">Not scheduled</span>
+              </p>
+              <p>
+                <i class="fas fa-user-tie"></i> Organized by&nbsp;<span
+                  id="eventOrganizer"
+                  >dubLive Events</span
+                >
+              </p>
+            </div>
+
+            <div id="countdownContainer">
+              <h3>Event Starts In:</h3>
+              <div class="countdown-timer" id="timerDisplay">
+                <p style="color: var(--color-text-muted)">Calculating...</p>
+              </div>
+            </div>
+            <button id="contactDetailsBtn">View Event Map</button>
+          </div>
+
+          <div class="ticket-categories">
+            <h2>Ticket Categories</h2>
+            <div id="ticketsList"></div>
+          </div>
+        </section>
+
+        <section class="sponsors-section">
+          <h2>Sponsored by</h2>
+
+          <div id="mainSponsorAd" class="main-sponsor">
+            <h3>Main Sponsor:</h3>
+            <a
+              href="https://example.com/mainsponsor"
+              target="_blank"
+              id="mainSponsorLink"
+            >
+              <img
+                id="mainSponsorImage"
+                src="images/placeholder-main-sponsor.png"
+                alt="Main Sponsor Advertisement"
+              />
+            </a>
+          </div>
+
+          <div class="sub-sponsors-container">
+            <h3
+              style="
+                color: var(--color-text-main);
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+                text-align: center;
+              "
+            >
+              Co-Sponsors:
+            </h3>
+            <div id="subSponsorsGallery" class="sub-sponsors-gallery">
+              <div class="sub-sponsor-item">
+                <a href="#" target="_blank"
+                  ><img src="images/placeholder-sub-1.png" alt="Sub Sponsor 1"
+                /></a>
+              </div>
+              <div class="sub-sponsor-item">
+                <a href="#" target="_blank"
+                  ><img src="images/placeholder-sub-2.png" alt="Sub Sponsor 2"
+                /></a>
+              </div>
+              <div class="sub-sponsor-item">
+                <a href="#" target="_blank"
+                  ><img src="images/placeholder-sub-3.png" alt="Sub Sponsor 3"
+                /></a>
+              </div>
+              <div class="sub-sponsor-item">
+                <a href="#" target="_blank"
+                  ><img src="images/placeholder-sub-4.png" alt="Sub Sponsor 4"
+                /></a>
+              </div>
+              <div class="sub-sponsor-item">
+                <a href="#" target="_blank"
+                  ><img src="images/placeholder-sub-5.png" alt="Sub Sponsor 5"
+                /></a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="buy-button-wrapper">
+          <button id="voteBtn" style="background: var(--primary); color: var(--color-background); width: 100%; font-size: 1.3rem; border-radius: 22rem; animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);">Vote for King and Queen</button>
+          <button id="buyTicketsBtn" style="margin-top: 15px;">Buy Tickets</button>
+        </div>
+      </main>
+    </div>
+
+    <footer id="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="images/Logo1.png" alt="dubLive" />
+          </div>
+          <p>
+            Your trusted platform for live event ticketing. Experience the
+            moment, live.
+          </p>
+        </div>
+        <div class="footer-column">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="searchTickets.html">Tickets</a></li>
+            <li><a href="#events">This Month</a></li>
+            <li><a href="#allEventsSection">All Events</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Contact</h4>
+          <ul>
+            <li>
+              <a href="mailto:dubliveeventsnet@gmail.com"
+                >dubliveeventsnet@gmail.com</a
+              >
+            </li>
+            <li><a href="tel:+94716531817">+94 71 653 1817</a></li>
+            <li><a href="#">Kurunegala, Sri Lanka</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Customer Care</h4>
+          <ul>
+            <li><a href="terms.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 dubLive Events. All Rights Reserved.</p>
+        <div class="social-links">
+          <a
+            href="https://www.instagram.com/dublive.events?igsh=MTJtYTcybzNjNmVxYw=="
+            target="_blank"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a
+            href="https://www.facebook.com/share/17BryR9HP8/?mibextid=wwXIfr"
+            target="_blank"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a href="https://wa.me/94716531817" target="_blank"
+            ><i class="fab fa-whatsapp"></i
+          ></a>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      import {
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+      import { db } from "./auth.js"; // your Firebase init file
+
+      function getEventId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("id");
+      }
+
+      /**
+       * Converts 24-hour time string (HH:MM) to 12-hour format with AM/PM.
+       * @param {string} timeString - Time in HH:MM format (e.g., "19:30").
+       * @returns {string} Formatted time string (e.g., "7:30 PM") or "Time TBA".
+       */
+      function formatTime(timeString) {
+        if (!timeString || timeString === "Not scheduled") {
+          return "Time TBA";
+        }
+        try {
+          const [hours, minutes] = timeString.split(":").map(Number);
+
+          // Basic validation for hours/minutes
+          if (
+            isNaN(hours) ||
+            isNaN(minutes) ||
+            hours < 0 ||
+            hours > 23 ||
+            minutes < 0 ||
+            minutes > 59
+          ) {
+            return timeString; // Return original if invalid
+          }
+
+          const date = new Date();
+          date.setHours(hours, minutes, 0, 0);
+
+          // Options to ensure 12-hour format with AM/PM
+          const timeOptions = {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          };
+          return date.toLocaleTimeString("en-US", timeOptions);
+        } catch (e) {
+          console.error("Error formatting time:", e);
+          return timeString;
+        }
+      }
+
+      /**
+       * Starts the countdown timer to the event date/time.
+       * @param {string} eventDateTimeString - The combined date and time string (e.g., "YYYY-MM-DDTTHH:MM:SS").
+       */
+      function startCountdown(eventDateTimeString) {
+        const countdownContainer =
+          document.getElementById("countdownContainer");
+        const countdownElement = document.getElementById("timerDisplay");
+        const buyTicketsBtn = document.getElementById("buyTicketsBtn");
+
+        // Attempt to create a standard Date object from the combined string
+        const eventTime = new Date(eventDateTimeString).getTime();
+
+        // Hide the whole container if the date is invalid (e.g., event.date/time missing)
+        if (isNaN(eventTime)) {
+          countdownContainer.style.display = "none";
+          return;
+        }
+
+        // Create the HTML structure initially
+        countdownElement.innerHTML = `
+        <div class="countdown-box"><span id="days">00</span><small>Days</small></div>
+        <div class="countdown-box"><span id="hours">00</span><small>Hours</small></div>
+        <div class="countdown-box"><span id="minutes">00</span><small>Minutes</small></div>
+        <div class="countdown-box"><span id="seconds">00</span><small>Seconds</small></div>
+    `;
+
+        const timer = setInterval(function () {
+          const now = new Date().getTime();
+          const distance = eventTime - now;
+
+          // Calculations for days, hours, minutes and seconds
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+          );
+          const minutes = Math.floor(
+            (distance % (1000 * 60 * 60)) / (1000 * 60),
+          );
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          if (distance > 0) {
+            // Display the result
+            document.getElementById("days").textContent = days
+              .toString()
+              .padStart(2, "0");
+            document.getElementById("hours").textContent = hours
+              .toString()
+              .padStart(2, "0");
+            document.getElementById("minutes").textContent = minutes
+              .toString()
+              .padStart(2, "0");
+            document.getElementById("seconds").textContent = seconds
+              .toString()
+              .padStart(2, "0");
+          } else {
+            // Event is over
+            clearInterval(timer);
+            // Update UI to reflect the event status
+            countdownContainer.querySelector("h3").textContent =
+              "🎉 Event Started / Concluded! 🎉";
+            countdownElement.innerHTML = `<p style="color:var(--color-text-muted); font-size:1.1rem; margin: 0;">Thank you for attending.</p>`;
+
+            // Hide buy button if event is over
+            buyTicketsBtn.style.display = "none";
+          }
+        }, 1000);
+      }
+
+      function loadSponsors(data) {
+        // Default to empty objects/arrays if data is missing, ensuring the code doesn't crash.
+        const sponsorData = data || { main: {}, sub: [] };
+        const mainAd = sponsorData.main || {};
+        const subAds = sponsorData.sub || [];
+
+        const sponsorsSection = document.querySelector(".sponsors-section");
+        const mainSponsorAd = document.getElementById("mainSponsorAd");
+        const mainSponsorLink = document.getElementById("mainSponsorLink");
+        const mainSponsorImage = document.getElementById("mainSponsorImage");
+        const subGallery = document.getElementById("subSponsorsGallery");
+        const subContainer = document.querySelector(".sub-sponsors-container");
+
+        let sponsorsFound = false;
+
+        // --- 1. Main Sponsor ---
+        if (mainAd.imageUrl) {
+          mainSponsorLink.href = mainAd.linkUrl || "#";
+          mainSponsorImage.src = mainAd.imageUrl; // This is the path saved by the admin page
+          mainSponsorAd.style.display = "block";
+          sponsorsFound = true;
+        } else {
+          mainSponsorAd.style.display = "none";
+        }
+
+        // --- 2. Sub Sponsors Gallery ---
+        subGallery.innerHTML = ""; // Clear existing placeholders
+        if (subAds.length > 0) {
+          subAds.forEach((sponsor) => {
+            if (sponsor.imageUrl) {
+              const item = document.createElement("div");
+              item.className = "sub-sponsor-item";
+              item.innerHTML = `
+                    <a href="${sponsor.linkUrl || "#"}" target="_blank">
+                        <img src="${sponsor.imageUrl}" alt="Event Sponsor">
+                    </a>
+                `;
+              subGallery.appendChild(item);
+              sponsorsFound = true;
+            }
+          });
+          subContainer.style.display = "block";
+        } else {
+          subContainer.style.display = "none";
+        }
+
+        // --- 3. Final visibility check ---
+        sponsorsSection.style.display = sponsorsFound ? "block" : "none";
+      }
+
+      async function loadEventDetails() {
+        const eventId = getEventId();
+        if (!eventId) return;
+
+        const docRef = doc(db, "events", eventId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const event = docSnap.data();
+
+          // Update HTML Elements
+          document.getElementById("eventTitle").textContent =
+            event.title || "Event Details";
+
+          // 🚀 IMPORTANT: Update both images
+          document.getElementById("eventCover").src =
+            event.flyerUrl || "images/default-event.png";
+          document.getElementById("eventCoverFull").src =
+            event.flyerUrl || "images/default-event.png";
+
+          const descriptionElement =
+            document.getElementById("eventDescription");
+          descriptionElement.textContent =
+            event.description || "No description available.";
+
+          // Update Details with Icons and NEW TIME FORMATTING
+          document.getElementById("eventDate").textContent =
+            event.date || "Not scheduled";
+          document.getElementById("eventTime").textContent = formatTime(
+            event.time,
+          ); // Use the new formatting function
+          document.getElementById("eventVenue").textContent =
+            event.venue || "Not scheduled";
+
+          // Organizer Text
+          document.getElementById("eventOrganizer").textContent =
+            event.organizer || "dubLive Events";
+
+          // --- NEW: Start Countdown Timer ---
+          if (event.date && event.time) {
+            // Combine date and time to create a full Date object
+            const eventDateTime = `${event.date}T${event.time}:00`;
+            startCountdown(eventDateTime);
+          } else {
+            // Hide countdown if date/time are missing
+            document.getElementById("countdownContainer").style.display =
+              "none";
+          }
+
+          // Dynamically render tickets
+          const ticketsList = document.getElementById("ticketsList");
+          ticketsList.innerHTML = "";
+          let hasValidTickets = false;
+
+          if (event.ticketTypes && Array.isArray(event.ticketTypes)) {
+            event.ticketTypes.forEach((ticket) => {
+              // Only show tickets that have a name and a price greater than 0
+              if (ticket.name && ticket.price && ticket.price > 0) {
+                hasValidTickets = true;
+                const div = document.createElement("div");
+                div.className = "ticket";
+                div.innerHTML = `
+                        <p>${ticket.name}</p>
+                        <p class="price">${ticket.price.toLocaleString()} LKR</p>
+                    `;
+                ticketsList.appendChild(div);
+
+                const hr = document.createElement("hr");
+                hr.className = "ticket-divider";
+                ticketsList.appendChild(hr);
+              }
+            });
+          }
+
+          // Fallback message if no valid tickets were found
+          if (!hasValidTickets) {
+            ticketsList.innerHTML =
+              "<p style='color:#777; font-style:italic;'>Ticket information is not yet available or all tickets are free.</p>";
+          }
+
+          // Buttons
+          document.getElementById("buyTicketsBtn").onclick = () => {
+            // Save event title before navigating, helpful for buy.html
+            sessionStorage.setItem("eventTitle", event.title || "Event");
+            window.location.href = `buy.html?id=${eventId}`;
+          };
+
+          // Vote Button Handler
+          document.getElementById("voteBtn").onclick = () => {
+            window.location.href = `vote.html?id=${eventId}`;
+          };
+
+          // UPDATED BUTTON HANDLER: Navigate to event-map.html
+          document.getElementById("contactDetailsBtn").onclick = () => {
+            window.location.href = `event-map.html?id=${eventId}`;
+          };
+
+          // 🏅 Fix: Pass event.sponsorData
+          loadSponsors(event.sponsorData);
+        } else {
+          document.getElementById("eventTitle").textContent = "Event Not Found";
+          document.getElementById("eventDescription").textContent =
+            "The requested event could not be loaded.";
+          document.getElementById("ticketsList").innerHTML =
+            "<p style='color:red;'>Error loading event data.</p>";
+
+          // Hide related sections if event isn't found
+          document.querySelector(".sponsors-section").style.display = "none";
+          document.querySelector(".buy-button-wrapper").style.display = "none"; // Hide CTA too
+          document.getElementById("countdownContainer").style.display = "none";
+        }
+      }
+
+      loadEventDetails();
+
+      // Page Transition
+      var pt = document.getElementById("pageTransition");
+      document
+        .querySelectorAll(
+          "a[href$='.html']:not([href^='#']):not([href^='mailto']):not([href^='tel'])",
+        )
+        .forEach(function (e) {
+          e.addEventListener("click", function (a) {
+            if (!a.ctrlKey && !a.metaKey) {
+              a.preventDefault();
+              var t = this.getAttribute("href");
+              (pt.classList.add("active"),
+                setTimeout(function () {
+                  window.location.href = t;
+                }, 500));
+            }
+          });
+        });
+
+      // Mobile Menu Functionality
+      window.toggleMenu = function () {
+        const navLinks = document.getElementById("navLinks");
+        const menuOverlay = document.getElementById("menuOverlay");
+        const hamburger = document.getElementById("hamburger");
+
+        navLinks.classList.toggle("active");
+        menuOverlay.classList.toggle("active");
+        hamburger.classList.toggle("active");
+
+        // Prevent background scrolling when menu is open
+        if (navLinks.classList.contains("active")) {
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "auto";
+        }
+      };
+
+      // Close menu when clicking on a link
+      document.querySelectorAll(".nav-links a").forEach((link) => {
+        link.addEventListener("click", () => {
+          const navLinks = document.getElementById("navLinks");
+          const menuOverlay = document.getElementById("menuOverlay");
+          const hamburger = document.getElementById("hamburger");
+
+          navLinks.classList.remove("active");
+          menuOverlay.classList.remove("active");
+          hamburger.classList.remove("active");
+          document.body.style.overflow = "auto";
+        });
+      });
+
+      // Ensure DOM is loaded before adding event listeners
+      document.addEventListener("DOMContentLoaded", function () {
+        // Additional initialization if needed
+      });
+    </script>
+  </body>
+</html>

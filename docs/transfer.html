@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Complete Your Transfer - Dublive Tickets</title>
+<style>
+  /* ... (Existing CSS remains) ... */
+  :root { 
+      --bg:#000; 
+      --card:#111; 
+      --text:#fff; 
+      --accent:#00ffcc; 
+      --error-bg: #2a0000; 
+      --error-border: #4a0000; 
+      --error-text: #ffb3b3; 
+      --info-bg: #002a2a; 
+      --info-border: #004a4a; 
+      --info-text: #b3ffff;
+      --pending-text-color: #ff4d4d; 
+      --warning-red: #ff4d4d; 
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); display: grid; place-items: center; min-height: 100vh;}
+  .wrap{width: 100%; max-width:520px; padding:16px}
+  .card{background:var(--card);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:24px}
+  h1{margin:0 0 8px;font-size:1.6rem;color:var(--accent)}
+  .sub{opacity:.85;margin-bottom:24px}
+  .summary { margin-top: 10px; border-top: 1px solid #2a2a2a; padding-top: 16px; }
+  .s-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .s-row.total { font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 12px; }
+  .info { padding:12px; border-radius:10px; background:var(--info-bg); border:1px solid var(--info-border); color:var(--info-text); margin-top:16px; margin-bottom: 20px;}
+
+  .bank-box { border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; background: #161616;}
+  .bank-box strong { color: var(--accent); display: block; margin-bottom: 5px; font-size: 1.1rem; }
+  .bank-box p { margin: 5px 0; font-size: 0.95rem; }
+
+  .file-input { margin-bottom: 20px;}
+  .file-input input[type="file"] { display: block; margin-top: 8px; color: var(--text); padding: 8px; border: 1px solid #333; border-radius: 6px; background: #222; width: 100%; }
+  
+  /* NEW STYLE: Explicit warning for file format */
+  #fileWarning {
+      color: var(--warning-red);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 5px; /* Space below the input */
+  }
+
+  .actions{margin-top:24px;display:flex;justify-content:flex-end}
+  .btn{width:100%;padding:14px 20px;border:none;border-radius:10px;background:var(--accent);color:#000;font-weight:600;cursor:pointer;font-size:1rem; transition: opacity 0.3s;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  
+  /* Success Styles (Copied from payment.html) */
+  .success-message { text-align: center; padding: 20px; }
+  .success-message h2 { color: var(--accent); }
+  .success-message .info-text { color: var(--info-text); font-weight: 500; margin-top: 10px; }
+  
+  /* ADDED: Style for the "NOT YET ACTIVE" text */
+  .pending-status {
+      color: var(--pending-text-color);
+      font-weight: 700;
+      text-transform: uppercase;
+  }
+  
+  #qrCodeContainer { margin: 20px auto; padding: 10px; background: white; border-radius: 8px; width: fit-content; }
+  .ticket-id { 
+      font-size: 0.8rem; 
+      color: #aaa; 
+      margin-top: 10px; 
+      word-break: break-all; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      gap: 8px;
+  }
+  .hidden { display: none; }
+
+  /* Style for the copy button */
+  #copyIdBtn {
+      background: none;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s, color 0.2s;
+      white-space: nowrap;
+      margin-left: 10px;
+  }
+  #copyIdBtn:hover {
+      background-color: var(--accent);
+      color: var(--card);
+  }
+  /* Style for the new instruction line */
+  .ticket-instruction {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--info-text);
+      margin-top: 20px;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script type="module">
+    // REDUNDANT loadBankDetails function from the top module removed for cleanliness.
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <div id="transfer-form-container" class="card">
+      <h1 id="eventTitle">Bank Transfer for Purchase</h1>
+      <div class="sub" id="customerInfo"></div>
+      
+      <div class="info">
+        Please complete the bank transfer for the Total Amount Due shown below, and then upload your receipt to submit your purchase for **manual approval**.
+      </div>
+
+      <div class="summary" id="summary"></div>
+      
+      <h2>Transfer Details</h2>
+      <div class="bank-box" id="bankBox">
+        <strong id="bankName">Loading Bank Name...</strong>
+        <p id="accNumber">Account Number: Loading...</p>
+        <p id="accHolderName">Account Name: Loading...</p>
+      </div>
+
+      <form id="transfer-form">
+        <div class="file-input">
+          <label for="receiptUpload" style="color:#c9efef; font-weight: 600;">Upload Transfer Receipt/Screenshot</label>
+          <input type="file" id="receiptUpload" accept="image/jpeg,image/png" required /> 
+          <p id="fileWarning">⚠️ Use only PNG/JPEG files. PDF format is not supported.</p> 
+        </div>
+        
+        <div id="form-error" role="alert" class="error hidden"></div>
+        
+        <div class="actions">
+          <button id="submitBtn" class="btn">
+            <span id="button-text">Submit for Approval</span>
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <div id="success-container" class="card hidden">
+        <div class="success-message">
+            <h2>Submission Successful!</h2>
+            <p class="info-text">
+                Your purchase is **PENDING APPROVAL**.
+                <br>The QR code below is <span class="pending-status">**NOT YET ACTIVE**</span>. 
+            </p>
+            <p>We will verify your bank transfer receipt and activate your ticket shortly. An email confirmation will be sent upon approval.</p>
+            
+            <div id="qrCodeContainer"></div>
+            
+            <p class="ticket-instruction">
+                Copy and keep this ticket ID to search for your ticket anytime later.
+            </p>
+
+            <p class="ticket-id">
+                <strong>Ticket ID (Pending):</strong> 
+                <span id="ticketId"></span>
+                <button id="copyIdBtn" title="Copy Ticket ID to clipboard">Copy</button>
+            </p>
+            <button id="backToEventsBtn" class="btn" style="margin-top: 20px;">Back to Events</button>
+        </div>
+    </div>
+  </div>
+
+<script type="module">
+    // Re-importing necessary modules for local script execution context
+    import { db } from "./auth.js"; // Assume this is available in the module scope
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    
+    emailjs.init('3eOiK-xC2wifbVSSx'); 
+    
+    // Bank Box Element References (Re-defined for local script context)
+    const bankDetailsElements = {
+        bank: document.getElementById('bankName'),
+        accNo: document.getElementById('accNumber'),
+        accName: document.getElementById('accHolderName')
+    };
+
+    const el = {
+        title: document.getElementById('eventTitle'),
+        customerInfo: document.getElementById('customerInfo'),
+        summary: document.getElementById('summary'),
+        submitBtn: document.getElementById('submitBtn'),
+        buttonText: document.getElementById('button-text'),
+        formError: document.getElementById('form-error'),
+        transferFormContainer: document.getElementById('transfer-form-container'),
+        successContainer: document.getElementById('success-container'),
+        qrCodeContainer: document.getElementById('qrCodeContainer'),
+        ticketId: document.getElementById('ticketId'),
+        backToEventsBtn: document.getElementById('backToEventsBtn'),
+        transferForm: document.getElementById('transfer-form'),
+        receiptUpload: document.getElementById('receiptUpload'),
+        copyIdBtn: document.getElementById('copyIdBtn'),
+        fileWarning: document.getElementById('fileWarning') // Reference to the warning text
+    };
+
+    let orderDetails;
+    try {
+        const orderString = sessionStorage.getItem('order');
+        if (!orderString) throw new Error("No order details found in sessionStorage.");
+        orderDetails = JSON.parse(orderString);
+        if (typeof orderDetails.totalAmount !== 'number' || orderDetails.totalAmount <= 0) {
+            throw new Error("Invalid total amount found in order details.");
+        }
+    } catch (error) {
+        showError('Error: No valid order details found. Please go back and select your tickets first.');
+        document.getElementById('transfer-form-container').classList.add('hidden');
+    }
+
+    if (orderDetails) {
+        initializeTransferPage();
+    }
+
+    // Utility to generate a unique ID for pending tickets
+    function generatePendingTicketId(eventId, email) {
+        const timestamp = Date.now().toString(36);
+        // Use a simple hash of email for uniqueness, preventing collision risk
+        const emailHash = email.substring(0, 4) + email.length;
+        // The ID will be used as the QR code content and Firestore document ID
+        return `PND-${eventId.substring(0, 4)}-${emailHash}-${timestamp}`; 
+    }
+    
+    // Utility to generate QR Code Data URL
+    function generateQrCodeDataURL(content) {
+        const typeNumber = 0;
+        const errorCorrectionLevel = 'L';
+        const qr = qrcode(typeNumber, errorCorrectionLevel);
+        qr.addData(content);
+        qr.make();
+        // Return the Data URL including the base64 part
+        return qr.createDataURL(8, 4); 
+    }
+
+    async function initializeTransferPage() {
+        displayOrderSummary();
+        
+        // Load bank details immediately
+        await loadBankDetails(orderDetails.eventId);
+        
+        // Generate and save the unique PND-ID to orderDetails
+        const pendingTicketId = generatePendingTicketId(orderDetails.eventId, orderDetails.customer.email);
+        orderDetails.pendingTicketId = pendingTicketId;
+        
+        // Store updated orderDetails back to sessionStorage
+        sessionStorage.setItem('order', JSON.stringify(orderDetails));
+
+        el.transferForm.addEventListener('submit', handleTransferSubmission);
+        el.receiptUpload.addEventListener('change', () => {
+            // Clear general form errors on file change, but maintain the specific file warning display state
+            showError('');
+            // Optional: You could add a check here to validate file type immediately on change
+        });
+    }
+
+    function displayOrderSummary() {
+        const eventTitle = sessionStorage.getItem('eventTitle') || 'Your Event';
+        el.title.textContent = `Bank Transfer for ${eventTitle}`;
+        const { customer, tickets } = orderDetails;
+        el.customerInfo.textContent = `Purchasing for: ${customer.name} (${customer.email})`;
+        
+        let summaryHTML = '';
+        tickets.forEach(ticket => {
+            const subtotal = ticket.price * ticket.quantity;
+            summaryHTML += `<div class="s-row"><span>${ticket.quantity} x ${ticket.type}</span><span>${money(subtotal)}</span></div>`;
+        });
+        
+        const totalAmount = orderDetails.totalAmount;
+        summaryHTML += `<div class="s-row total"><span>Total Amount Due</span><span>${money(totalAmount)}</span></div>`;
+        el.summary.innerHTML = summaryHTML;
+    }
+
+    /**
+     * Fetches event details and dynamically updates the bank transfer box.
+     * @param {string} eventId The ID of the currently selected event.
+     */
+    async function loadBankDetails(eventId) {
+        const bankBoxElement = document.getElementById('bankBox');
+        if (!eventId) {
+            console.error("No event ID provided for bank details.");
+            bankBoxElement.innerHTML = `<p style="color:var(--error-text);">Error: Could not retrieve event details.</p>`;
+            return;
+        }
+
+        const eventDocRef = doc(db, "events", eventId);
+        try {
+            const eventSnap = await getDoc(eventDocRef);
+            if (eventSnap.exists()) {
+                const event = eventSnap.data();
+                
+                // Get bank details, checking for falsy values including empty string
+                const dbBank = event.bank;
+                const dbAccNo = event.accNo;
+                const dbAccName = event.accName;
+
+                // Debug Fix for empty strings: only use DB value if it exists AND is not empty
+                const bank = (dbBank && dbBank.trim()) ? dbBank : "HNB Bank (Kurunegala Metro Branch)";
+                const accNo = (dbAccNo && dbAccNo.trim()) ? dbAccNo : "224020082031";
+                const accName = (dbAccName && dbAccName.trim()) ? dbAccName : "W.S.K.W.B. Wagasenevi";
+                
+                // Update the elements
+                bankDetailsElements.bank.textContent = `Bank: ${bank}`;
+                bankDetailsElements.accNo.textContent = `Account Number: ${accNo}`;
+                bankDetailsElements.accName.textContent = `Account Name: ${accName}`;
+                
+            } else {
+                bankBoxElement.innerHTML = `<p style="color:var(--error-text);">Error: Event not found in database.</p>`;
+            }
+        } catch (error) {
+            console.error("Error fetching bank details:", error);
+            bankBoxElement.innerHTML = `<p style="color:var(--error-text);">Failed to load bank details. Please refresh.</p>`;
+        }
+    }
+
+
+    async function handleTransferSubmission(e) {
+        e.preventDefault();
+        setLoading(true);
+        showError('');
+        
+        const uploadedFile = el.receiptUpload.files[0];
+
+        if (!uploadedFile) {
+            showError("Please upload the bank transfer receipt.");
+            setLoading(false);
+            return;
+        }
+
+        // CRITICAL CHECK: Enforce non-PDF file type explicitly
+        // Check file extension or MIME type (MIME type is safer)
+        const fileType = uploadedFile.type;
+        if (fileType.includes('pdf') || !fileType.includes('image')) {
+             el.fileWarning.textContent = "⚠️ Error: Use only PNG/JPEG files. PDF format is not supported.";
+             showError("Please use a PNG or JPEG file for the receipt.");
+             setLoading(false);
+             return;
+        }
+        
+        // Clear the specific file warning if validation passes
+        el.fileWarning.textContent = "⚠️ Use only PNG/JPEG files. PDF format is not supported."; // Reset visual state
+
+        const pendingTicketId = orderDetails.pendingTicketId; // Use the generated ID
+        
+        // 1. GENERATE QR CODE IMAGE (Client-Side)
+        const qrCodeDataURL = generateQrCodeDataURL(pendingTicketId);
+        
+        // 2. CONSTRUCT THE TICKET DATA STRUCTURE (Matching database format)
+        const { name, email, phone, nic } = orderDetails.customer;
+
+        const dataToSend = {
+            email: email,
+            eventId: orderDetails.eventId,
+            isScanned: false,
+            ticketId: pendingTicketId, 
+            name: name,
+            phone: phone,
+            nic: nic,
+            tickets: orderDetails.tickets.map(t => ({
+                arrived: 0, 
+                price: t.price,
+                qty: t.quantity, 
+                type: t.type
+            })),
+            // Pass the base64 QR code data to the server for upload
+            qrCodeDataURL: qrCodeDataURL 
+        };
+        
+        // 3. Prepare FormData for file and JSON data
+        const formData = new FormData();
+        formData.append('receipt', uploadedFile); 
+        // Send the entire structured object as JSON string
+        formData.append('orderData', JSON.stringify(dataToSend)); 
+
+        try {
+            // 4. Send the request to your backend server 
+            const response = await fetch('/submit-transfer', {
+                method: 'POST',
+                body: formData 
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Server error: Status ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            // 5. Show the pending success message and QR code
+            showPendingSuccess(result.ticketId); 
+
+        } catch (error) {
+            console.error("Transfer submission failed:", error);
+            if (error.message.includes("Failed to fetch")) {
+                 showError(`Connection Failed: Could not connect to the server at http://localhost:8080. Is the server running?`);
+            } else {
+                showError(`Submission failed: ${error.message}.`);
+            }
+            setLoading(false);
+        }
+    }
+
+    function showError(message) {
+        el.formError.textContent = message;
+        el.formError.classList.toggle('hidden', !message);
+    }
+
+    function setLoading(isLoading) {
+        el.submitBtn.disabled = isLoading;
+        el.buttonText.textContent = isLoading ? 'Submitting...' : 'Submit for Approval';
+    }
+
+function showPendingSuccess(pendingTicketId) {
+    el.transferFormContainer.classList.add('hidden');
+    el.successContainer.classList.remove('hidden');
+    
+    el.ticketId.textContent = pendingTicketId;
+    
+    // --- Display QR Code for the Pending ID ---
+    const qrCodeContent = pendingTicketId;
+    try {
+        // REMOVED: Inefficient inline QR code generation logic (typeNumber=10 was here)
+        
+        // ✅ FIX: REUSING the optimized utility function to get the base64 Data URL
+        const qrCodeImageSrc = generateQrCodeDataURL(qrCodeContent); 
+        
+        // This line uses qrcode-generator's built-in image tag creator, 
+        // which can only be generated from a qr object instance, not the data URL itself.
+        // To reuse the optimized logic *and* display it, we'll re-run the necessary steps
+        // but now using the optimized settings defined in generateQrCodeDataURL's core logic.
+        
+        // We will call the generator directly here using the correct settings (typeNumber=0, ECL=L)
+        // to get the image tag needed for display, since the utility only returns the URL.
+        
+        const typeNumber = 0; // Ensures smallest size
+        const errorCorrectionLevel = 'L'; // Ensures fastest scan
+        const qr = qrcode(typeNumber, errorCorrectionLevel);
+        qr.addData(qrCodeContent);
+        qr.make();
+        
+        // Use the image tag creator for display (moduleSize 4, margin 8)
+        const qrImgTag = qr.createImgTag(4, 8); 
+        el.qrCodeContainer.innerHTML = qrImgTag;
+        
+    } catch (e) {
+        console.error("QR Code display failed:", e);
+        el.qrCodeContainer.innerHTML = "Could not generate QR code for display.";
+    }
+    // ------------------------------------------
+
+    el.copyIdBtn.addEventListener('click', () => copyTicketId(pendingTicketId));
+
+    el.backToEventsBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('order');
+        sessionStorage.removeItem('eventTitle');
+        location.replace('main.html');
+    });
+    
+    sessionStorage.removeItem('order');
+    sessionStorage.removeItem('eventTitle');
+}
+    
+    // Copy function
+    async function copyTicketId(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            const originalText = el.copyIdBtn.textContent;
+            el.copyIdBtn.textContent = 'Copied!';
+            el.copyIdBtn.disabled = true;
+            setTimeout(() => {
+                el.copyIdBtn.textContent = originalText;
+                el.copyIdBtn.disabled = false;
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy Ticket ID. Please copy it manually: ' + text);
+        }
+    }
+
+    function money(n) {
+        return (Number(n) || 0).toLocaleString('en-LK') + ' LKR';
+    }
+</script>
+</body>
+</html>

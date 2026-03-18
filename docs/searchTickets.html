@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Tickets - dubLive Tickets</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      :root {
+        --primary: #00d4aa;
+        --primary-dark: #00b894;
+        --bg-dark: #0d0d0f;
+        --bg-card: #16161a;
+        --text-white: #ffffff;
+        --text-gray: #9ca3af;
+        --border: #27272a;
+      }
+      body {
+        background: var(--bg-dark);
+        color: var(--text-white);
+        line-height: 1.6;
+      }
+
+      /* Page Transition */
+      .page-transition {
+        position: fixed;
+        inset: 0;
+        background: #0a0a0f;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease;
+      }
+      .page-transition.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Navbar */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        background: rgba(13, 13, 15, 0.25);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-white);
+        text-decoration: none;
+      }
+      .nav-logo img {
+        height: 36px;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .nav-links a {
+        color: var(--text-gray);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--primary);
+      }
+      .menu-footer {
+        display: none;
+      }
+      #hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        padding: 5px;
+      }
+      #hamburger span {
+        width: 24px;
+        height: 2px;
+        background: var(--primary);
+        transition: 0.2s;
+      }
+
+      /* Mobile Nav */
+      @media (max-width: 900px) {
+        #hamburger {
+          display: flex;
+        }
+        #menuOverlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s;
+          z-index: 999;
+        }
+        #menuOverlay.active {
+          opacity: 1;
+          visibility: visible;
+        }
+        .nav-links {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 300px;
+          height: 100vh;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 5rem 2rem 2rem;
+          gap: 0;
+          background: rgba(10, 10, 12, 0.85);
+          backdrop-filter: blur(20px);
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+          transition: right 0.3s ease;
+          z-index: 1000;
+        }
+        .nav-links.active {
+          right: 0;
+        }
+        .nav-links a {
+          font-size: 1.1rem;
+          padding: 0.75rem 0;
+          width: 100%;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .menu-footer {
+          display: block;
+          width: 100%;
+          text-align: center;
+          margin-top: auto;
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .menu-footer p {
+          font-size: 0.75rem;
+          color: var(--text-gray);
+        }
+        .menu-footer span {
+          color: var(--primary);
+        }
+      }
+
+      /* Search Container */
+      .search-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 2rem 4rem;
+      }
+      .search-box {
+        width: 100%;
+        max-width: 420px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+      }
+      .search-box h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+      .search-box > p {
+        color: var(--text-gray);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+      }
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+      .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-gray);
+        margin-bottom: 0.5rem;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-white);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .btn-primary {
+        flex: 1;
+        padding: 14px;
+        background: var(--primary);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+      .btn-secondary {
+        width: 50px;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--primary);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary);
+      }
+      .error-message {
+        color: #ff6b6b;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: none;
+      }
+
+      /* Results */
+      .result-item {
+        background: var(--bg-dark);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+      .result-item strong {
+        display: block;
+        font-size: 1.1rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+      .ticket-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+      .ticket-row:last-child {
+        border-bottom: none;
+      }
+      .ticket-row span {
+        color: var(--text-gray);
+        flex-shrink: 0;
+      }
+      .ticket-row strong {
+        color: var(--text-white);
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+      }
+      .ticket-breakdown {
+        margin: 1rem 0;
+        padding-left: 1rem;
+        border-left: 3px solid var(--primary);
+      }
+      .ticket-breakdown p {
+        font-size: 0.9rem;
+        color: var(--text-gray);
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+      }
+      .status-purchased {
+        background: rgba(0, 212, 170, 0.2);
+        color: var(--primary);
+      }
+      .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+      }
+      .status-not-found {
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+      }
+      .download-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: all 0.2s;
+      }
+      .download-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      /* Footer */
+      footer {
+        padding: 4rem 2rem 2rem;
+        border-top: 1px solid var(--border);
+      }
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 3rem;
+      }
+      .footer-brand {
+        max-width: 300px;
+      }
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-white);
+        margin-bottom: 1.25rem;
+      }
+      .footer-logo img {
+        height: 36px;
+      }
+      .footer-brand p {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+        line-height: 1.7;
+      }
+      .footer-column h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-white);
+        margin-bottom: 1.25rem;
+      }
+      .footer-column ul {
+        list-style: none;
+      }
+      .footer-column li {
+        margin-bottom: 0.75rem;
+      }
+      .footer-column a {
+        color: var(--text-gray);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      .footer-column a:hover {
+        color: var(--primary);
+      }
+      .footer-bottom {
+        max-width: 1200px;
+        margin: 3rem auto 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .footer-bottom p {
+        color: var(--text-gray);
+        font-size: 0.85rem;
+      }
+      .social-links {
+        display: flex;
+        gap: 12px;
+      }
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-card);
+        border-radius: 10px;
+        color: var(--text-gray);
+        transition: all 0.2s;
+      }
+      .social-links a:hover {
+        background: var(--primary);
+        color: #000;
+      }
+      @media (max-width: 900px) {
+        .footer-content {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        .footer-bottom {
+          flex-direction: column;
+          gap: 1.5rem;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-transition" id="pageTransition"></div>
+
+    <nav>
+      <a href="main.html" class="nav-logo">
+        <img src="images/Logo1.png" alt="dubLive" />
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="searchTickets.html">Tickets</a>
+        <a href="all-events.html">All Events</a>
+        <a href="main.html">Back</a>
+        <div class="menu-footer">
+          <p>Designed and developed by <span>dubLive Systems</span> v1.3.1</p>
+        </div>
+      </div>
+      <div id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </nav>
+
+    <div id="menuOverlay" onclick="toggleMenu()"></div>
+
+    <div class="search-container">
+      <div class="search-box">
+        <h1>Search Tickets</h1>
+        <p>Check your ticket status using ID and email</p>
+
+        <form id="ticketSearchForm">
+          <div class="form-group">
+            <label>Ticket ID</label>
+            <input
+              type="text"
+              id="ticketId"
+              placeholder="e.g., PND-XXXX-410-..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="your@email.com"
+              required
+            />
+          </div>
+
+          <p id="errorMessage" class="error-message"></p>
+
+          <div class="button-group">
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="handleRefresh()"
+              title="Refresh"
+            >
+              <i class="fas fa-redo-alt"></i>
+            </button>
+          </div>
+        </form>
+
+        <div id="resultArea"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="images/Logo1.png" alt="dubLive" />
+          </div>
+          <p>
+            Your trusted platform for live event ticketing. Experience the
+            moment, live.
+          </p>
+        </div>
+        <div class="footer-column">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="main.html">Home</a></li>
+            <li><a href="all-events.html">All Events</a></li>
+            <li><a href="searchTickets.html">Search Tickets</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Contact</h4>
+          <ul>
+            <li>
+              <a href="mailto:dubliveeventsnet@gmail.com"
+                >dubliveeventsnet@gmail.com</a
+              >
+            </li>
+            <li><a href="tel:+94716531817">+94 71 653 1817</a></li>
+            <li>Kurunegala, Sri Lanka</li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Customer Care</h4>
+          <ul>
+            <li><a href="terms.html">Terms & Conditions</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 dubLive. All rights reserved.</p>
+        <div class="social-links">
+          <a href="https://instagram.com" target="_blank"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a href="https://facebook.com" target="_blank"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a href="https://wa.me/94716531817" target="_blank"
+            ><i class="fab fa-whatsapp"></i
+          ></a>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      import {
+        collection,
+        getDocs,
+        query,
+        where,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+      import { db } from "./auth.js";
+
+      const form = document.getElementById("ticketSearchForm");
+      const ticketIdInput = document.getElementById("ticketId");
+      const emailInput = document.getElementById("email");
+      const resultArea = document.getElementById("resultArea");
+      const errorMessage = document.getElementById("errorMessage");
+
+      window.toggleMenu = function () {
+        document.getElementById("navLinks").classList.toggle("active");
+        document.getElementById("menuOverlay").classList.toggle("active");
+      };
+
+      window.handleRefresh = function () {
+        ticketIdInput.value = "";
+        emailInput.value = "";
+        resultArea.innerHTML = "";
+        errorMessage.style.display = "none";
+      };
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        resultArea.innerHTML = "";
+        errorMessage.style.display = "none";
+
+        const ticketId = ticketIdInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!ticketId || !email) {
+          errorMessage.textContent = "Please enter both Ticket ID and Email";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        try {
+          let ticketFound = false;
+          let ticketData, ticketStatus;
+
+          const checkCollection = async (colName) => {
+            const q = query(
+              collection(db, colName),
+              where("ticketId", "==", ticketId),
+              where("email", "==", email),
+            );
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              ticketData = snap.docs[0].data();
+              ticketStatus =
+                colName === "tickets"
+                  ? "Purchased"
+                  : colName === "pendingTickets"
+                    ? "Pending"
+                    : "Rejected";
+              return true;
+            }
+            return false;
+          };
+
+          if (
+            (await checkCollection("rejectedTickets")) ||
+            (await checkCollection("pendingTickets")) ||
+            (await checkCollection("tickets"))
+          ) {
+            ticketFound = true;
+          }
+
+          if (ticketFound) {
+            const eventDoc = ticketData.eventId
+              ? await getDoc(doc(db, "events", ticketData.eventId))
+              : null;
+            const eventName = eventDoc?.exists()
+              ? eventDoc.data().title
+              : "Event";
+
+            let dateStr = "N/A";
+            if (ticketData.purchaseDate) {
+              const d =
+                typeof ticketData.purchaseDate.seconds === "number"
+                  ? new Date(ticketData.purchaseDate.seconds * 1000)
+                  : new Date(ticketData.purchaseDate);
+              dateStr = d.toLocaleString();
+            }
+
+            let ticketsHtml = "";
+            if (ticketData.tickets && ticketData.tickets.length > 0) {
+              ticketsHtml = '<div class="ticket-breakdown">';
+              ticketData.tickets.forEach((t) => {
+                if (t.qty > 0) ticketsHtml += `<p>• ${t.qty} x ${t.type}</p>`;
+              });
+              ticketsHtml += "</div>";
+            }
+
+            const isPurchased = ticketStatus === "Purchased";
+            const statusClass = isPurchased
+              ? "status-purchased"
+              : ticketStatus === "Pending"
+                ? "status-pending"
+                : "status-not-found";
+            const statusText = isPurchased
+              ? "TICKET ACTIVE"
+              : ticketStatus === "Pending"
+                ? "PENDING APPROVAL"
+                : "NOT FOUND";
+
+            const resultItem = document.createElement("div");
+            resultItem.className = "result-item";
+            resultItem.innerHTML = `
+                        <strong>Ticket ID: ${ticketData.ticketId}</strong>
+                        <div class="ticket-row"><span>Email:</span> <strong>${ticketData.email}</strong></div>
+                        <div class="ticket-row"><span>Event:</span> <strong>${eventName}</strong></div>
+                        <div class="ticket-row"><span>Date:</span> <strong>${dateStr}</strong></div>
+                        ${ticketsHtml}
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        ${isPurchased ? `<button class="download-btn" data-ticket-id="${ticketData.ticketId}" data-event-name="${eventName}" data-email="${ticketData.email}" data-tickets='${JSON.stringify(ticketData.tickets)}' data-qrcode-url="${ticketData.qrCodeUrl || ""}"><i class="fas fa-download"></i> Download Ticket</button>` : ""}
+                    `;
+            resultArea.appendChild(resultItem);
+
+            if (isPurchased) {
+              resultItem
+                .querySelector(".download-btn")
+                .addEventListener("click", function () {
+                  downloadPDF(this);
+                });
+            }
+          } else {
+            resultArea.innerHTML =
+              '<div class="result-item"><strong>Not Found</strong><p>Ticket ID or Email combination not found.</p><span class="status-badge status-not-found">NOT FOUND</span></div>';
+          }
+        } catch (error) {
+          console.error(error);
+          errorMessage.textContent = "Error connecting to database";
+          errorMessage.style.display = "block";
+        }
+      });
+
+      async function downloadPDF(btn) {
+        if (typeof window.jspdf === "undefined")
+          return alert("PDF library not loaded");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>...';
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+          });
+          const pageW = doc.internal.pageSize.getWidth();
+          const pageH = doc.internal.pageSize.getHeight();
+          const margin = 15;
+          const contentW = pageW - margin * 2;
+
+          // Background
+          doc.setFillColor(26, 26, 26);
+          doc.rect(0, 0, pageW, pageH, "F");
+
+          // Border
+          doc.setDrawColor(0, 212, 170);
+          doc.setLineWidth(0.5);
+          doc.rect(
+            margin - 2,
+            margin - 2,
+            contentW + 4,
+            pageH - margin * 2 + 4,
+            "S",
+          );
+
+          const ticketId = btn.dataset.ticketId;
+          const eventName = btn.dataset.eventName;
+          const email = btn.dataset.email;
+          const tickets = JSON.parse(btn.dataset.tickets);
+          const qrUrl = btn.dataset.qrcodeUrl;
+
+          let y = margin + 15;
+
+          // Header
+          doc.setFontSize(10);
+          doc.setTextColor(0, 212, 170);
+          doc.text("OFFICIAL TICKET", pageW / 2, y, { align: "center" });
+
+          // Event Name
+          y += 12;
+          doc.setFontSize(22);
+          doc.setTextColor(255, 255, 255);
+
+          // Split long event names
+          const eventLines = doc.splitTextToSize(
+            eventName.toUpperCase(),
+            contentW - 20,
+          );
+          doc.text(eventLines, pageW / 2, y, { align: "center" });
+          y += eventLines.length * 10 + 5;
+
+          // Divider line
+          doc.setDrawColor(60, 60, 60);
+          doc.setLineWidth(0.3);
+          doc.line(margin + 10, y, pageW - margin - 10, y);
+          y += 10;
+
+          // QR Code Section
+          doc.setFontSize(9);
+          doc.setTextColor(150, 150, 150);
+          doc.text("SCAN FOR ENTRY", pageW / 2, y, { align: "center" });
+          y += 5;
+
+          const qrSize = 45;
+          if (qrUrl) {
+            try {
+              const res = await fetch(qrUrl);
+              const blob = await res.blob();
+              const reader = new FileReader();
+              reader.readAsDataURL(blob);
+              await new Promise((r) => (reader.onloadend = r));
+              doc.addImage(
+                reader.result,
+                "PNG",
+                (pageW - qrSize) / 2,
+                y,
+                qrSize,
+                qrSize,
+              );
+            } catch (e) {
+              console.error("QR load error:", e);
+            }
+          }
+          y += qrSize + 15;
+
+          // Ticket Details Box
+          doc.setFillColor(35, 35, 35);
+          doc.roundedRect(margin + 5, y - 5, contentW - 10, 50, 2, 2, "F");
+          doc.setDrawColor(50, 50, 50);
+          doc.setLineWidth(0.2);
+          doc.roundedRect(margin + 5, y - 5, contentW - 10, 50, 2, 2, "S");
+
+          // Ticket ID
+          doc.setFontSize(8);
+          doc.setTextColor(120, 120, 120);
+          doc.text("TICKET ID", margin + 12, y);
+          doc.setFontSize(11);
+          doc.setTextColor(255, 255, 255);
+          doc.text(ticketId, margin + 12, y + 6);
+
+          // Email
+          y += 18;
+          doc.setFontSize(8);
+          doc.setTextColor(120, 120, 120);
+          doc.text("EMAIL", margin + 12, y);
+          doc.setFontSize(10);
+          doc.setTextColor(255, 255, 255);
+
+          // Wrap long email
+          const emailLines = doc.splitTextToSize(email, contentW - 25);
+          doc.text(emailLines, margin + 12, y + 5);
+
+          // Status Badge
+          const badgeW = 40;
+          const badgeH = 10;
+          const badgeX = pageW - margin - badgeW - 5;
+          const badgeY = y - 2;
+
+          doc.setFillColor(0, 184, 96);
+          doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 2, 2, "F");
+          doc.setFontSize(7);
+          doc.setTextColor(0, 0, 0);
+          doc.text("ACTIVE", badgeX + badgeW / 2, badgeY + 6.5, {
+            align: "center",
+          });
+
+          y += 35;
+
+          // Tickets Section
+          doc.setFontSize(9);
+          doc.setTextColor(0, 212, 170);
+          doc.text("TICKETS", margin + 10, y);
+
+          doc.setDrawColor(50, 50, 50);
+          doc.setLineWidth(0.2);
+          doc.line(margin + 10, y + 2, pageW - margin - 10, y + 2);
+          y += 8;
+
+          doc.setFontSize(10);
+          doc.setTextColor(255, 255, 255);
+          tickets.forEach((t, i) => {
+            if (t.qty > 0) {
+              doc.text(`• ${t.qty} x ${t.type}`, margin + 12, y + i * 6);
+            }
+          });
+
+          // Footer
+          y += 25;
+          doc.setFontSize(7);
+          doc.setTextColor(100, 100, 100);
+          doc.text("Powered by dubLive Systems", pageW / 2, y, {
+            align: "center",
+          });
+          doc.text("Present this QR code at the entrance", pageW / 2, y + 4, {
+            align: "center",
+          });
+
+          doc.save(`Ticket-${ticketId}.pdf`);
+        } catch (e) {
+          console.error(e);
+          alert("PDF generation failed");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-download"></i> Download Ticket';
+        }
+      }
+
+      // Page Transition
+      var pt = document.getElementById("pageTransition");
+      document
+        .querySelectorAll(
+          "a[href$='.html']:not([href^='#']):not([href^='mailto']):not([href^='tel'])",
+        )
+        .forEach(function (e) {
+          e.addEventListener("click", function (a) {
+            if (!a.ctrlKey && !a.metaKey) {
+              a.preventDefault();
+              var href = this.getAttribute("href");
+              pt.classList.add("active");
+              setTimeout(function () {
+                window.location.href = href;
+              }, 500);
+            }
+          });
+        });
+    </script>
+  </body>
+</html>

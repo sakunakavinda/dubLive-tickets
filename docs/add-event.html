@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Event - dubLive Events</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000000;
+      margin: 0;
+      /* Adjusted padding since the header is sticky */
+      padding-top: 0; 
+      color: #fff;
+    }
+
+    /* === NEW HEADER STYLES (Copied from event-details.html) === */
+    header {
+      display: flex;
+      /* KEY CHANGE: Use space-between to push items to the edges */
+      justify-content: space-between;
+      align-items: center;
+      /* STICKY POSITIONING */
+      position: sticky;
+      top: 0;
+      z-index: 100; /* Ensure it stays above content */
+      /* LIQUID GLASS EFFECT */
+      background-color:rgba(0, 0, 0, 0.863); /* Semi-transparent background */
+      backdrop-filter: blur(10px); /* Frosted glass effect */
+      /* PADDING AND SHADOW */
+      padding: 1rem 2rem;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8); /* Stronger shadow for depth */
+    }
+
+    /* Header Link Styles (Back to Dashboard) */
+    .header-link {
+        display: inline-block;
+        color: #00ffcc; /* Accent color */
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        background: #1a1a1a; /* Dark background for contrast */
+        border-radius: 6px;
+        transition: background-color 0.2s, color 0.2s;
+        white-space: nowrap;
+    }
+
+    .header-link:hover {
+        background-color: #00ffcc;
+        color: #000000;
+    }
+
+    /* KEY CHANGE: Style for the Title/Admin Info Block */
+    .header-info-block {
+        text-align: right; /* Align text to the right for the rightmost corner */
+    }
+
+    header h1 {
+        color: #ffffff; 
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    header span {
+        font-size: 0.9rem;
+        color: #00ffcc; 
+        font-weight: 500;
+        display: block;
+        margin-top: 2px;
+    }
+    /* === END NEW HEADER STYLES === */
+
+    /* Form container */
+    .form-container {
+      max-width: 650px;
+      margin: 2rem auto;
+      background: #1c1c1e;
+      padding: 2.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .form-container:hover {
+      transform: translateY(-3px);
+    }
+
+    h2 {
+      color: #fff;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-weight: 600;
+      color: #d2d2d2;
+      font-size: 0.95rem;
+    }
+
+    input, select, textarea { /* Added textarea here */
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 0.4rem;
+      border: none;
+      background: #2c2c2e;
+      color: #fff;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    /* Specific style for textarea */
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    input:focus, select:focus, textarea:focus { /* Added textarea here */
+      outline: none;
+      border-color: #2ab95c;
+      box-shadow: 0 0 5px rgba(18, 228, 91, 0.623);
+    }
+
+    input[type="file"] {
+      padding: 0.5rem;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.9rem 1.2rem;
+      background: #1d8240;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #02411d;
+      transform: translateY(-2px);
+    }
+
+    .btn-small {
+      margin-top: 0.8rem;
+      background: #333;
+      font-size: 0.85rem;
+      padding: 0.6rem 1rem;
+    }
+
+    #ticketTypes .ticket-type {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+      background: #2c2c2e;
+    }
+
+    #msg {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      color: red;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      /* Replicate responsive header styles */
+      header { 
+          flex-direction: row; 
+          justify-content: space-between;
+          align-items: center;
+          text-align: left;
+          padding: 0.8rem 1rem;
+      }
+      .header-info-block {
+          text-align: right;
+      }
+      header h1 { font-size: 1.4rem; }
+      header span { margin-top: 0; display: block; }
+
+      body {
+        padding: 0; /* Remove body padding */
+      }
+
+      .form-container {
+        /* Adjust margin to avoid touching header */
+        margin: 1rem auto 2rem auto; 
+        padding: 2rem 1.5rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <header>
+      <a href="admin-dashboard.html" id="backToDashboardBtn" class="header-link">← Dashboard</a>
+      
+      <div class="header-info-block">
+          <h1>dubLive Admin</h1>
+          <span id="adminName">Add New Event</span>
+      </div>
+  </header>
+  <div class="form-container">
+    <h2>Add New Event</h2>
+
+    <label>Event Name</label>
+    <input type="text" id="eventName" placeholder="Enter event name">
+
+    <label>Event Date</label>
+    <input type="date" id="eventDate">
+
+    <label>Event Time</label>
+    <input type="time" id="eventTime">
+
+    <label>Venue</label>
+    <input type="text" id="venue" placeholder="Enter venue">
+
+    <label>Organizer Name</label>
+    <input type="text" id="organizer" placeholder="Enter organizer name">
+
+    <label>Organizer Contact</label>
+    <input type="number" id="contact" placeholder="+94 7* *** ****">
+    
+    <label>Event Description</label>
+    <textarea id="eventDescription" placeholder="Provide a detailed description of the event..."></textarea>
+    
+    <label>Event Category</label>
+    <select id="eventCategory">
+        <option value="Concert">Concert</option>
+        <option value="Theater">Theater</option>
+        <option value="Family & Other">Family & Other</option>
+    </select>
+
+    <label>Status</label>
+    <select id="eventStatus">
+        <option value="not live">Not Live</option>
+        <option value="live">Live</option>
+    </select>
+
+    <label>Tickets Start At (Calculated)</label>
+    <input type="text" id="startingPriceDisplay" value="Calculated automatically" readonly style="color: #00ffcc; font-weight: bold;">
+
+    <h3 style="margin-top:1.8rem; color:#fff;">Ticket Types</h3>
+    <div id="ticketTypes"></div>
+    <button type="button" id="addTicketTypeBtn" class="btn-small">+ Add new category</button>
+
+    <label style="margin-top:1.5rem;">Event Flyer</label>
+    <input type="file" id="flyer">
+
+    <button id="saveEventBtn">Save Event</button>
+    <p id="msg"></p>
+  </div>
+
+  <script type="module" src="add-event.js"></script>
+</body>
+</html>

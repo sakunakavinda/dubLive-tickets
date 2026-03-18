@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reviews - dubLive Events</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    :root {
+      --color-background: #0a0a0a;
+      --color-text-main: #f0f0f0;
+      --color-text-muted: #c0c0c0;
+      --color-accent-primary: #1DC7A5;
+      --color-sidebar: #111;
+      --color-card: #111;
+    }
+    body { min-height: 100vh; background-color: var(--color-background); color: var(--color-text-main); display: flex; }
+    .sidebar { width: 280px; background: var(--color-sidebar); padding: 30px; box-shadow: 2px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; z-index: 100; border-right: 1px solid #222; }
+    .sidebar h2 { margin-bottom: 30px; color: var(--color-text-main); font-size: 1.4rem; text-align: center; padding-bottom: 20px; border-bottom: 2px solid #222; }
+    .sidebar h2 i { color: var(--color-accent-primary); margin-right: 10px; }
+    .action-button { display: flex; align-items: center; justify-content: flex-start; width: 100%; padding: 14px 20px; margin-bottom: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; gap: 12px; background: #282828; color: var(--color-text-main); }
+    .action-button i { font-size: 1.2rem; width: 24px; text-align: center; color: var(--color-accent-primary); }
+    #backBtn:hover { background: var(--color-accent-primary); color: var(--color-background); transform: translateX(5px); }
+    #logoutBtn { background: rgba(220,53,69,0.2); color: #dc3545; margin-top: auto; }
+    #logoutBtn:hover { background: #dc3545; color: white; }
+    .main-content { flex: 1; margin-left: 280px; padding: 40px; }
+    .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .page-header h1 { color: var(--color-text-main); font-size: 1.8rem; margin-bottom: 8px; }
+    .page-header p { color: var(--color-text-muted); font-size: 0.95rem; }
+    .export-btn { padding: 10px 20px; background: var(--color-accent-primary); color: var(--color-background); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+    .export-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(29,199,165,0.3); }
+    .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: var(--color-card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; border: 1px solid #222; }
+    .stat-card .icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-card .icon.green { background: rgba(29,199,165,0.15); color: var(--color-accent-primary); }
+    .stat-card .icon.blue { background: rgba(0,123,255,0.15); color: #007bff; }
+    .stat-card .info h3 { font-size: 1.5rem; color: var(--color-text-main); margin-bottom: 4px; }
+    .stat-card .info p { font-size: 0.85rem; color: var(--color-text-muted); }
+    .table-section { background: var(--color-card); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); overflow: hidden; border: 1px solid #222; }
+    .table-header { padding: 20px 25px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+    .table-header h2 { color: var(--color-text-main); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+    .table-header h2 i { color: var(--color-accent-primary); }
+    .search-filter { display: flex; gap: 10px; }
+    .search-input { padding: 10px 15px; border: 1px solid #333; border-radius: 8px; background: #1a1a1a; color: var(--color-text-main); font-size: 0.9rem; outline: none; width: 250px; }
+    .search-input:focus { border-color: var(--color-accent-primary); }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #1a1a1a; }
+    th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #222; }
+    th { font-weight: 600; color: var(--color-text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    tbody tr { transition: background-color 0.2s; }
+    tbody tr:hover { background: #1a1a1a; }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--color-accent-primary); display: flex; align-items: center; justify-content: center; color: var(--color-background); font-weight: 600; font-size: 1rem; }
+    .user-name { font-weight: 500; color: var(--color-text-main); }
+    .review-message { color: var(--color-text-muted); font-size: 0.9rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .date-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: rgba(0,123,255,0.1); border: 1px solid rgba(0,123,255,0.3); border-radius: 20px; color: #007bff; font-size: 0.85rem; }
+    .empty-state, .loading { text-align: center; padding: 60px 20px; color: var(--color-text-muted); }
+    .empty-state i, .loading i { font-size: 2rem; color: var(--color-accent-primary); }
+    .loading i { animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .sidebar-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 200; background: var(--color-accent-primary); color: var(--color-background); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+    .action-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+    .action-btn.delete { background: rgba(220,53,69,0.1); color: #dc3545; }
+    .action-btn.delete:hover { background: #dc3545; color: white; }
+    @media (max-width: 992px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 70px 20px 20px; } .sidebar-toggle { display: block; } }
+    @media (max-width: 768px) { .stats-container { grid-template-columns: repeat(2, 1fr); } .page-header { flex-direction: column; align-items: flex-start; gap: 15px; } .search-filter { width: 100%; } .search-input { width: 100%; } }
+    @media (max-width: 480px) { .stats-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+  <div class="sidebar" id="sidebar">
+    <h2><i class="fas fa-star"></i> Reviews</h2>
+    <button id="backBtn" class="action-button"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+    <button id="logoutBtn" class="action-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Reviews Management</h1>
+        <p>View and manage user reviews</p>
+      </div>
+      <button class="export-btn" id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
+    </div>
+    <div class="stats-container">
+      <div class="stat-card"><div class="icon green"><i class="fas fa-star"></i></div><div class="info"><h3 id="totalReviews">0</h3><p>Total Reviews</p></div></div>
+      <div class="stat-card"><div class="icon blue"><i class="fas fa-calendar-alt"></i></div><div class="info"><h3 id="todayReviews">0</h3><p>Today's Reviews</p></div></div>
+    </div>
+    <div class="table-section">
+      <div class="table-header">
+        <h2><i class="fas fa-list"></i> All Reviews</h2>
+        <div class="search-filter">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search by name or message...">
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Message</th>
+              <th>Created Date</th>
+              <th>Created Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsTableBody">
+            <tr><td colspan="7"><div class="loading"><i class="fas fa-spinner"></i><p>Loading reviews...</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { auth, db } from "./auth.js";
+
+    let allReviews = [];
+    const reviewsTableBody = document.getElementById("reviewsTableBody");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const searchInput = document.getElementById("searchInput");
+
+    sidebarToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+    document.addEventListener("click", (e) => {
+      if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove("open");
+      }
+    });
+
+    function formatDate(d) { if (!d) return "N/A"; return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }); }
+    function formatTime(t) { if (!t) return ""; const [h, m] = t.split(":"); const hour = parseInt(h); return hour % 12 + ":" + m + " " + (hour >= 12 ? "PM" : "AM"); }
+    function getInitials(name) { if (!name) return "?"; return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2); }
+
+    function renderStats() {
+      document.getElementById("totalReviews").textContent = allReviews.length;
+      const today = new Date().toISOString().split("T")[0];
+      const todayCount = allReviews.filter(r => r.createdAt && r.createdAt.startsWith(today)).length;
+      document.getElementById("todayReviews").textContent = todayCount;
+    }
+
+    function renderReviews(reviews) {
+      if (reviews.length === 0) {
+        reviewsTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-star-slash"></i><p>No reviews found</p></div></td></tr>';
+        return;
+      }
+      reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      reviewsTableBody.innerHTML = reviews.map(r => {
+        const initials = getInitials(r.name);
+        const createdAt = r.createdAt || "";
+        const datePart = createdAt.split("T")[0] || "";
+        const timePart = createdAt.includes("T") ? createdAt.split("T")[1].substring(0, 5) : "";
+        return '<tr>' +
+          '<td><div class="user-info"><div class="user-avatar">' + initials + '</div><div class="user-name">' + (r.name || "Anonymous") + '</div></div></td>' +
+          '<td><span class="review-message" title="' + (r.message || "") + '">' + (r.message || "No message") + '</span></td>' +
+          '<td><span class="date-badge"><i class="fas fa-calendar"></i> ' + formatDate(datePart) + '</span></td>' +
+          '<td>' + formatTime(timePart) + '</td>' +
+          '<td><button class="action-btn delete" onclick="deleteReview(\'' + r.id + '\')"><i class="fas fa-trash"></i></button></td>' +
+          '</tr>';
+      }).join("");
+    }
+
+    window.deleteReview = async function(id) { if (!confirm("Delete this review?")) return; await deleteDoc(doc(db, "reviews", id)); allReviews = allReviews.filter(r => r.id !== id); renderStats(); renderReviews(allReviews); };
+
+    async function loadReviews() {
+      try {
+        const reviewsSnap = await getDocs(collection(db, "reviews"));
+        allReviews = reviewsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderStats(); renderReviews(allReviews);
+      } catch (err) {
+        console.error(err);
+        reviewsTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-exclamation"></i><p>Error loading reviews</p></div></td></tr>';
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace("admin.html"); return; }
+      document.getElementById("backBtn").onclick = () => window.location.href = "admin-dashboard.html";
+      document.getElementById("logoutBtn").onclick = async () => { if (confirm("Logout?")) await signOut(auth); };
+      searchInput.addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = allReviews.filter(r => (r.name || "").toLowerCase().includes(q) || (r.message || "").toLowerCase().includes(q));
+        renderReviews(filtered);
+      });
+      document.getElementById("exportBtn").onclick = () => {
+        if (allReviews.length === 0) return alert("No data to export");
+        let csv = "Name,Message,Created Date,Created Time\n";
+        allReviews.forEach(r => {
+          const createdAt = r.createdAt || "";
+          const datePart = createdAt.split("T")[0] || "";
+          const timePart = createdAt.includes("T") ? createdAt.split("T")[1].substring(0, 5) : "";
+          const message = (r.message || "").replace(/"/g, '""');
+          csv += `"${r.name || ""}","${message}","${datePart}","${timePart}"\n`;
+        });
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "reviews.csv"; a.click();
+      };
+      loadReviews();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>dubLive - Experience the Moment</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#00d4aa;--primary-glow:rgba(0,212,170,0.4);--bg-dark:#0a0a0f;--bg-card:#151520;--text-main:#ffffff;--text-muted:#a0a0b0;--border:#2a2a3a;--gradient:linear-gradient(135deg,#00d4aa 0%,#00f5c4 100%)}
+body{font-family:'Inter',sans-serif;background:var(--bg-dark);color:var(--text-main);line-height:1.6;overflow-x:hidden}
+/* Page Transition */
+.page-transition{position:fixed;inset:0;background:#0a0a0f;z-index:9999;opacity:0;visibility:hidden;transition:opacity 0.5s ease}
+.page-transition.active{opacity:1;visibility:visible}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;text-align:center;position:relative}
+.hero-bg{position:absolute;inset:0;overflow:hidden;z-index:-1}
+.hero-bg::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,var(--primary-glow) 0%,transparent 70%);opacity:0.5;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translateX(-50%) scale(1);opacity:0.5}50%{transform:translateX(-50%) scale(1.1);opacity:0.7}}
+.hero-content{max-width:900px;animation:fadeInUp 1s ease-out}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-logo{display:block;margin:0 auto 30px;max-width:200px;height:auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);border-radius:50px;font-size:0.85rem;color:var(--primary);margin-bottom:30px}
+.hero h1{font-size:3.5rem;font-weight:800;line-height:1.1;margin-bottom:20px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero h1 span{-webkit-text-fill-color:var(--text-main)}
+.hero-subtitle{font-size:1.2rem;color:var(--text-muted);margin-bottom:50px;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-cta{display:inline-flex;align-items:center;gap:12px;padding:18px 50px;background:var(--gradient);border:none;border-radius:60px;color:var(--bg-dark);font-weight:700;font-size:1.1rem;text-decoration:none;cursor:pointer;transition:all 0.3s;animation:fadeInUp 1s ease-out 0.3s both}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 15px 40px var(--primary-glow)}
+.hero-cta i{font-size:1.3rem}
+.ecosystem-section{padding:100px 40px;background:var(--bg-card)}
+.section-header{text-align:center;margin-bottom:60px}
+.section-header h2{font-size:2.5rem;font-weight:700;margin-bottom:15px}
+.section-header p{color:var(--text-muted);font-size:1.1rem;max-width:500px;margin:0 auto}
+.ecosystem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px;max-width:1200px;margin:0 auto}
+.ecosystem-card{background:var(--bg-dark);border:1px solid var(--border);border-radius:24px;padding:40px 30px;text-align:center;position:relative;overflow:hidden;transition:all 0.4s ease}
+.ecosystem-card:hover{transform:translateY(-10px);border-color:var(--primary);box-shadow:0 20px 40px rgba(0,212,170,0.15)}
+.ecosystem-card.featured{border-color:var(--primary);background:linear-gradient(135deg,rgba(0,212,170,0.08) 0%,rgba(0,212,170,0.02) 100%)}
+.ecosystem-icon{width:80px;height:80px;margin:0 auto 25px;display:flex;align-items:center;justify-content:center;background:var(--gradient);border-radius:50%;font-size:2rem;color:var(--bg-dark)}
+.ecosystem-card h3{font-size:1.5rem;font-weight:700;margin-bottom:15px;color:var(--text-main)}
+.ecosystem-card p{color:var(--text-muted);font-size:0.95rem;line-height:1.7;margin-bottom:25px}
+.ecosystem-link{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:30px;font-weight:600;text-decoration:none;transition:all 0.3s}
+.ecosystem-link.primary{background:var(--gradient);color:var(--bg-dark)}
+.ecosystem-link.primary:hover{transform:scale(1.05);box-shadow:0 10px 30px var(--primary-glow)}
+.ecosystem-link.secondary{background:transparent;border:1px solid var(--border);color:var(--text-muted)}
+.ecosystem-link.secondary:hover{border-color:var(--primary);color:var(--primary)}
+.status-badge{position:absolute;top:20px;right:20px;padding:6px 14px;border-radius:20px;font-size:0.75rem;font-weight:600}
+.status-badge.live{background:rgba(0,212,170,0.15);color:var(--primary)}
+.status-badge.soon{background:rgba(255,193,7,0.15);color:#ffc107}
+@media(max-width:1024px){.hero h1{font-size:3rem}}
+@media(max-width:768px){.hero{padding:40px 20px}.hero h1{font-size:2.2rem}.hero-subtitle{font-size:1rem}.ecosystem-section{padding:60px 20px}.ecosystem-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page-transition" id="pageTransition"></div>
+<section class="hero"><div class="hero-bg"></div><div class="hero-content"><img src="images/Logo1.png" alt="dubLive" class="hero-logo"><div class="hero-badge"><i class="fas fa-star"></i><span>The dubLive Experience</span></div><h1>Welcome to <span>dubLive</span></h1><p class="hero-subtitle">Your gateway to unforgettable experiences. Live events, premium venues, and exclusive spaces — all in one ecosystem.</p><a href="main.html" class="hero-cta transition-link"><i class="fas fa-ticket-alt"></i> Enter dubLive Tickets</a></div></section>
+<section class="ecosystem-section"><div class="section-header"><h2>The dubLive Ecosystem</h2><p>Discover our range of experiences and venues</p></div><div class="ecosystem-grid"><div class="ecosystem-card featured"><span class="status-badge live">Live Now</span><div class="ecosystem-icon"><i class="fas fa-ticket-alt"></i></div><h3>dubLive Tickets</h3><p>Book tickets for concerts, sports, theater, and festivals. Secure, fast, and easy ticketing for the best live events.</p><a href="main.html" class="ecosystem-link primary"><i class="fas fa-arrow-right"></i> Browse Events</a></div><div class="ecosystem-card"><span class="status-badge soon">Coming Soon</span><div class="ecosystem-icon"><i class="fas fa-music"></i></div><h3>dubLive House</h3><p>Premium sound. Live DJs. Your drinks. The floor is yours—dance the night away in our premier BYOB club space.</p><a href="#" class="ecosystem-link secondary"><i class="fas fa-bell"></i> Get Notified</a></div><div class="ecosystem-card"><span class="status-badge soon">Coming Soon</span><div class="ecosystem-icon"><i class="fas fa-film"></i></div><h3>dubLive Lounge</h3><p>Cinema, but make it private. Book an exclusive screening and experience the big screen from the best seat in the house.</p><a href="#" class="ecosystem-link secondary"><i class="fas fa-bell"></i> Get Notified</a></div></div></section>
+<script>
+document.addEventListener('DOMContentLoaded',function(){var t=document.getElementById('pageTransition'),e=document.querySelectorAll('.transition-link');e.forEach(function(n){n.addEventListener('click',function(a){a.preventDefault();var i=this.getAttribute('href');t.classList.add('active'),setTimeout(function(){window.location.href=i},500)})})});
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Map - dubLive Tickets</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+/* ------------------------------------------------------------------ */
+/* PROFESSIONAL VISION STYLES (Palette Sync) */
+/* ------------------------------------------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --color-background: #0a0a0a;
+    --color-text-main: #f0f0f0;
+    --color-accent-primary: #1DC7A5; 
+    --color-dark-element: #111;
+    --color-nav-accent: #00ffcc; 
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--color-background);
+    color: var(--color-text-main);
+    line-height: 1.6;
+    padding-top: 80px; /* Space for the fixed nav bar */
+}
+
+/* ------------------------------------------------------------------ */
+/* NAV BAR STYLES (Mini version) */
+/* ------------------------------------------------------------------ */
+nav {
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+.logo-link {
+    text-decoration: none; 
+    display: flex; 
+    align-items: center;
+}
+
+.logo { height: 40px; width: auto; display: flex; align-items: center; }
+.logo img { height: 100%; width: auto; }
+
+.page-title {
+    color: var(--color-text-main);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* MAP CONTENT STYLES */
+/* ------------------------------------------------------------------ */
+.map-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+#mapHeader {
+    color: var(--color-accent-primary);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+#mapDisplay {
+    width: 100%;
+    max-width: 900px; /* Max width for the map image */
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 255, 204, 0.1);
+    background: var(--color-dark-element); /* Fallback background */
+    object-fit: contain; /* Ensure the full map is visible */
+    margin: 20px auto;
+    cursor: zoom-in; /* Indicate it can be viewed full-size */
+}
+
+/* Placeholder/Error Message Styles */
+.map-message {
+    padding: 50px 20px;
+    background: var(--color-dark-element);
+    border-radius: 12px;
+    margin-top: 30px;
+    font-size: 1.2rem;
+    color: #50ff4d; /* Error red */
+}
+
+.loading-spinner {
+    font-size: 2rem;
+    color: var(--color-nav-accent);
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body { padding-top: 70px; }
+    nav { padding: 0.8rem 1rem; }
+    .page-title { font-size: 1.2rem; }
+    #mapHeader { font-size: 1.8rem; }
+    .map-container { margin: 20px auto; }
+    .map-message { padding: 30px 15px; font-size: 1rem; }
+}
+
+/* ------------------------------------------------------------------ */
+/* UPDATED NAV BUTTON STYLING FOR ICON */
+/* ------------------------------------------------------------------ */
+.nav-button {
+    /* Base button style (now applied to the icon's container) */
+    background: transparent; 
+    color: var(--color-nav-accent); /* Use accent color for the icon */
+    padding: 8px 15px;
+    border: 1px solid var(--color-nav-accent); /* Added a border for button look */
+    border-radius: 22px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem; /* Adjust font size for the icon/text */
+    transition: background 0.3s, color 0.3s, transform 0.2s, border-color 0.3s;
+    display: inline-flex; /* Use flex to center the icon */
+    align-items: center;
+    justify-content: center;
+    line-height: 1; /* Fix line height for better centering */
+}
+
+.nav-button:hover {
+    background: var(--color-nav-accent); 
+    color: var(--color-background); 
+    border-color: transparent; /* Remove border on hover for clean look */
+    transform: translateY(-1px);
+}
+
+.nav-links a {
+    /* Remove default text decoration from the link wrapper */
+    text-decoration: none;
+}
+/* Ensure the icon itself is styled correctly inside the button link */
+.nav-links i {
+    font-size: 1.1rem; /* Slightly larger icon */
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="main.html" class="logo-link"> 
+        <div class="logo">
+            <img src="images/Logo1.png" alt="Elyzium Events Logo">
+        </div>
+    </a>
+    
+    <span class="page-title">Event Map</span> 
+
+    <div class="nav-links">
+        <a href="javascript:history.back()" title="Go Back" class="nav-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+</nav>
+
+<div class="map-container">
+    <h1 id="mapHeader">Loading Event Map...</h1>
+    
+    <div id="mapContent">
+        <div class="map-message"><i class="fas fa-spinner loading-spinner"></i> Loading map data...</div>
+    </div>
+</div>
+
+<script type="module">
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { db } from "./auth.js"; // your Firebase init file
+
+function getEventId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+}
+
+const mapHeader = document.getElementById('mapHeader');
+const mapContent = document.getElementById('mapContent');
+
+async function loadEventMap() {
+    const eventId = getEventId();
+    if (!eventId) {
+        mapHeader.textContent = "Error Loading Map";
+        mapContent.innerHTML = '<div class="map-message" style="color:#FF4D4D;"><i class="fas fa-exclamation-triangle"></i> Event ID is missing from the URL.</div>';
+        return;
+    }
+
+    const docRef = doc(db, "events", eventId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const event = docSnap.data();
+        const eventTitle = event.title || "Event";
+        mapHeader.textContent = `${eventTitle} Map`;
+        const mapUrl = event.mapUrl;
+
+        if (mapUrl) {
+            // Display the map image
+            mapContent.innerHTML = `
+                <img id="mapDisplay" src="${mapUrl}" alt="Event Map for ${eventTitle}" onclick="window.open('${mapUrl}', '_blank')">
+                <p style="color:var(--color-text-muted); margin-top:15px; font-size:0.9rem;">Click the image to view full-size.</p>
+            `;
+        } else {
+            // Display message if map is not set
+            mapContent.innerHTML = `
+                <div class="map-message" style="color:var(--color-accent-primary);">
+                    <i class="fas fa-map-marked-alt"></i> No event map has been provided for this event yet.
+                </div>
+            `;
+        }
+
+    } else {
+        mapHeader.textContent = "Event Not Found";
+        mapContent.innerHTML = '<div class="map-message" style="color:#FF4D4D;"><i class="fas fa-exclamation-triangle"></i> Event data not found in the database.</div>';
+    }
+}
+
+loadEventMap();
+</script>
+
+</body>
+</html>

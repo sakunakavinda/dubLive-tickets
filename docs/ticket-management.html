@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Management - dubLive Tickets</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* --- Global Variables & Reset (From Dashboard) --- */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+:root {
+  --color-background: #0a0a0a;
+  --color-text-main: #f0f0f0;
+  --color-text-muted: #c0c0c0;
+  --color-accent-primary: #1DC7A5;
+  --color-sidebar: #111;
+  --color-card: #111;
+  --color-border: #222;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-success: #1d8240; /* Kept from ticket-mgmt but adjusted slightly if needed */
+}
+
+body { 
+    min-height: 100vh; 
+    background-color: var(--color-background); 
+    color: var(--color-text-main); 
+    display: flex; 
+}
+
+
+/* Change this */
+.actions-cell { 
+    padding: 10px 20px; /* Match standard td padding or adjust */
+}
+
+/* Add this */
+.actions-wrapper {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* --- Sidebar Styles (From Dashboard) --- */
+.sidebar { width: 280px; background: var(--color-sidebar); padding: 20px; box-shadow: 2px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; z-index: 100; border-right: 1px solid var(--color-border); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sidebar h2 { margin-bottom: 30px; color: var(--color-text-main); font-size: 1.4rem; text-align: center; padding-bottom: 20px; border-bottom: 2px solid var(--color-border); }
+.sidebar h2 i { color: var(--color-accent-primary); margin-right: 10px; }
+.action-button { display: flex; align-items: center; justify-content: flex-start; width: 100%; padding: 14px 20px; margin-bottom: 12px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; gap: 12px; background: #282828; color: var(--color-text-main); text-decoration: none; }
+.action-button i { font-size: 1.2rem; width: 24px; text-align: center; color: var(--color-accent-primary); }
+.action-button:hover, .action-button.active { background: var(--color-accent-primary); color: var(--color-background); transform: translateX(5px); }
+.action-button:hover i, .action-button.active i { color: var(--color-background); }
+
+.sidebar-footer { margin-top: auto; padding: 15px 20px; text-align: center; font-size: 0.75rem; color: #666; border-top: 1px solid var(--color-border); }
+.sidebar-footer .version { color: #1dc79fcc; font-weight: bold; }
+/* --- Main Content Area --- */
+.main-content { flex: 1; margin-left: 280px; padding: 40px; width: calc(100% - 280px); }
+
+/* --- Page Header --- */
+.page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-start; }
+.page-header-content h1 { color: var(--color-text-main); font-size: 1.8rem; margin-bottom: 8px; }
+.page-header-content p { color: var(--color-text-muted); font-size: 0.95rem; }
+
+/* --- Stats Section (Adapted to Dashboard Style) --- */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--color-card);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-2px); }
+
+/* Accents for stats */
+.stat-card.purchased { border-bottom: 4px solid var(--color-success); }
+.stat-card.purchased .card-split {
+    display: flex;
+    height: 100%;
+}
+.stat-card.purchased .card-split > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;
+}
+.stat-card.purchased .card-split > div:last-child {
+    padding-right: 0;
+    padding-left: 20px;
+    border-right: 1px solid var(--color-border);
+}
+.stat-card.purchased .card-split .total-sold-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00ccff;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.stat-card.purchased .card-split h4 {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+}
+.stat-card.pending { border-bottom: 4px solid var(--color-warning); }
+
+.stat-card h3 {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .count-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.stat-card.purchased .count-display { color: #8fdf9f; }
+.stat-card.pending .count-display { color: #ff8533; }
+
+/* --- Filter Tabs --- */
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+.filter-btn {
+    background: var(--color-card);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    transform: translateY(1px);
+    min-width: 120px;
+    text-align: center;
+}
+
+.filter-btn:hover { background-color: #2a2a2a; }
+.filter-btn.active {
+    background-color: var(--color-accent-primary);
+    color: var(--color-background);
+    border-color: var(--color-accent-primary);
+    transform: translateY(0);
+}
+
+/* --- Search Bar --- */
+.search-bar {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 1rem;
+    background: var(--color-card);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+}
+
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 0.7rem 3rem 0.7rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #000;
+    color: var(--color-text-main);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+#searchInput:focus {
+    border-color: var(--color-accent-primary);
+    outline: none;
+}
+
+#clearSearchBtn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.2rem;
+    display: none;
+}
+#clearSearchBtn:hover { color: var(--color-text-main); }
+
+/* --- Table Styles (Adapted) --- */
+.table-container {
+    background: var(--color-card);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    border: 1px solid var(--color-border);
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+th {
+    padding: 15px 20px;
+    text-align: left;
+    background-color: #1a1a1a;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+    border-bottom: 2px solid var(--color-border);
+}
+tbody td {
+    padding: 15px 20px;
+    text-align: left;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    font-size: 0.9rem;
+}
+tbody tr:first-child td {
+    border-top: none;
+}
+tbody tr:hover { background-color: #1a1a1a; }
+
+/* --- Status & Badges --- */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-purchased { background: rgba(29,199,165,0.15); color: var(--color-accent-primary); }
+.status-pending { background: rgba(255,193,7,0.15); color: #ffc107; }
+.status-cancelled { background: rgba(220,53,69,0.15); color: #dc3545; }
+.status-rejected { background: rgba(220,53,69,0.15); color: #dc3545; }
+
+.method-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+    min-width: 50px;
+    text-align: center;
+}
+.method-cash { background: rgba(2,184,96,0.15); color: #02b860; }
+.method-bank { background: rgba(255,133,51,0.15); color: #ff8533; }
+.method-online { background: rgba(0,204,255,0.15); color: #00ccff; }
+
+/* --- Buttons --- */
+#generateTicketBtn {
+    background: linear-gradient(135deg, var(--color-accent-primary), #57ff8f);
+    color: var(--color-background);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: 0.3s ease;
+    display: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+#generateTicketBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(29, 199, 165, 0.4);
+}
+
+.action-btn {
+    background: linear-gradient(135deg, var(--color-accent-primary), #57ff8f);
+    color: var(--color-background);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.details-btn {
+    background: linear-gradient(135deg, #007bff, #00c3ff);
+    color: white;
+    border: none;
+}
+.details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+.action-btn:hover:not(:disabled) { opacity: 1; transform: translateY(-2px); }
+
+.action-btn.approve { background: linear-gradient(135deg, #02b860, #02e876); color: white; }
+.action-btn.approve:hover { box-shadow: 0 4px 12px rgba(2,184,96,0.4); }
+.action-btn.reject { background: rgba(220,53,69,0.2); color: #ff4d4d; border: none; }
+.action-btn.reject:hover { background: #dc3545; color: white; transform: translateY(-2px); }
+.action-btn.cancel { background: rgba(204,153,0,0.2); color: #ffc107; border: none; }
+.action-btn.cancel:hover { background: #cc9900; color: white; transform: translateY(-2px); }
+.action-btn.close-modal { background: rgba(68,68,68,0.3); color: #ccc; border: none; }
+.action-btn.close-modal:hover { background: #444; color: #fff; transform: translateY(-2px); }
+.action-btn.secondary-action { background: rgba(68,68,68,0.3); color: #ccc; border: none; }
+.action-btn.secondary-action:hover { background: #555; color: var(--color-accent-primary); transform: translateY(-2px); }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+.actions-cell { display: flex; gap: 5px; flex-wrap: wrap; }
+
+/* --- Modals (Existing Styles Preserved but Colors Tweak) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none; justify-content: center; align-items: center;
+    z-index: 2000; overflow-y: auto; padding: 1rem;
+}
+.modal-content {
+    background: var(--color-card);
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%; max-width: 850px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+    position: relative; max-height: 90vh; overflow-y: auto;
+    border: 1px solid var(--color-border);
+}
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem; margin-bottom: 1.5rem;
+}
+.modal-header h2 { color: var(--color-accent-primary); font-size: 1.5rem; }
+
+.close-btn { background: none; border: none; color: var(--color-text-main); font-size: 1.5rem; cursor: pointer; }
+.close-btn:hover { color: var(--color-danger); }
+
+.modal-body p { margin-bottom: 0.5rem; font-size: 0.95rem; line-height: 1.4; }
+.modal-body strong { color: var(--color-accent-primary); display: inline-block; min-width: 120px; }
+.modal-body .detail-group { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: 8px; }
+
+/* Ticket List inside Modal */
+.ticket-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.ticket-item {
+    padding: 10px;
+    border-left: 4px solid var(--color-accent-primary);
+    background: #000;
+    border-radius: 4px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 0.9rem;
+}
+.ticket-item > span:first-child { flex-grow: 1; margin-right: 15px; color: var(--color-text-main); }
+.ticket-item > span:first-child strong { color: var(--color-accent-primary); }
+.ticket-item .price-qty { font-weight: 600; color: var(--color-accent-primary); white-space: nowrap; }
+
+/* Receipt View */
+.receipt-view-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.receipt-image-container { margin-top: 15px; text-align: center; padding: 10px 0; border-top: 1px dashed var(--color-border); }
+.receipt-image-container img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--color-border); }
+@media (min-width: 800px) { .receipt-view-grid { grid-template-columns: 1fr 1fr; } }
+
+.duplicate-receipt-container { padding: 10px; border: 1px solid #ff4d4d; border-radius: 8px; background: #1e0000; }
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+.bank-approval-form .modal-footer { border-top: none !important; padding-top: 1rem; justify-content: space-between; }
+.inline-action-group { display: flex; gap: 10px; }
+.inline-status-message { font-weight: 600; padding: 0.5rem 0; text-align: center; }
+.inline-status-message.new { color: #02b860; }
+.inline-status-message.duplicate { color: #ff4d4d; }
+
+/* Rejection Modal */
+.rejection-modal-content {
+    background: #2a2a2a; padding: 1.5rem; border-radius: 12px;
+    max-width: 450px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+}
+.rejection-modal-content h3 { color: #ff4d4d; margin-bottom: 1rem; border-bottom: 1px solid #444; padding-bottom: 0.5rem; }
+.rejection-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+.rejection-options label { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+
+/* Bank Approval Form */
+.bank-approval-form { padding: 1rem; margin-top: 1.5rem; background: #111; border: 1px solid #02b860; border-radius: 8px; }
+.bank-approval-form h3 { color: #02b860; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; font-size: 1.3rem; }
+.bank-approval-form label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--color-text-main); font-size: 0.9rem; }
+.bank-approval-form input[type="text"], .bank-approval-form input[type="date"], .bank-approval-form input[type="time"], .bank-approval-form select {
+    width: 100%; padding: 0.6rem 1rem; margin-bottom: 15px;
+    border: 1px solid #333; border-radius: 6px; background-color: #000;
+    color: var(--color-text-main); font-size: 1rem; transition: border-color 0.3s;
+}
+.bank-approval-form input:focus, .bank-approval-form select:focus { border-color: #02b860; outline: none; }
+.bank-approval-form .verification-error { color: #ff4d4d; font-size: 0.85rem; margin-top: -10px; margin-bottom: 10px; display: none; }
+.form-row { display: flex; gap: 20px; margin-bottom: 15px; }
+.form-row > div { flex: 1; }
+
+/* Date Input Icon */
+.date-input-wrapper { position: relative; display: block; }
+#transactionDate {
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    padding-right: 3rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2302b860'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5z'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: 1.2rem 1.2rem; background-position: right 10px center;
+}
+#transactionDate::-webkit-calendar-picker-indicator {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%; background: transparent; opacity: 0; cursor: pointer; z-index: 10;
+}
+
+/* Loader */
+.loader { border: 4px solid #333; border-top: 4px solid var(--color-accent-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Sidebar Toggle & Responsive */
+.sidebar-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 200; background: var(--color-accent-primary); color: var(--color-background); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+
+@media (max-width: 992px) { 
+  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; height: 100vh; position: fixed; }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; padding: 70px 15px 20px; width: 100%; }
+  .sidebar-toggle { display: block; }
+}
+@media (max-width: 768px) {
+    .page-header { flex-direction: column; gap: 15px; align-items: stretch; }
+    .page-header > div:last-child { flex-direction: column; width: 100%; }
+    .page-header > div:last-child button { width: 100%; justify-content: center; }
+    .filter-tabs { flex-wrap: wrap; gap: 8px; }
+    .filter-btn { flex-grow: 1; min-width: 100px; padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+    .search-bar { flex-direction: column; align-items: stretch; padding: 0.8rem; }
+    th, td { padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+    .table-container { padding: 0.5rem; }
+    .modal-content { padding: 1.5rem; width: 95%; }
+    .modal-body strong { min-width: 100px; }
+    .receipt-view-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .bank-approval-form .form-row { flex-direction: column; gap: 10px; }
+    .bank-approval-form .modal-footer { flex-direction: column-reverse; gap: 10px; }
+    .inline-action-group { flex-direction: column; width: 100%; }
+    .inline-action-group button, .bank-approval-form .modal-footer button { width: 100%; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar Toggle Button -->
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <h2><i class="fas fa-user"></i> Organizer</h2>
+  <button id="dashboardBtn" class="action-button"><i class="fas fa-chart-line"></i> Dashboard</button>
+  <button id="eventsBtn" class="action-button"><i class="fas fa-calendar-alt"></i> Event Data</button>
+  <button id="viewTicketsBtn" class="action-button active"><i class="fas fa-ticket-alt"></i> Ticket Management</button>
+  <button id="votingBtn" class="action-button"><i class="fas fa-vote-yea"></i> Voting Admin</button>
+  <button id="profileBtn" class="action-button"><i class="fas fa-user"></i> Profile</button>
+  <div id="sidebarFooter" class="sidebar-footer">Loading version...</div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1>Ticket Overview</h1>
+            <p id="adminName">organizer@email.com</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button id="generateTicketBtn">Generate Ticket</button>
+            <button id="detailedTableBtn" class="action-btn">Detailed Table</button>
+        </div>
+    </div>
+
+    <div class="stats-overview">
+        <div class="stat-card purchased">
+            <div class="card-split">
+                <div>
+                    <h3>Total Purchases</h3>
+                    <span class="count-display" id="purchasedDocCount">0</span>
+                    <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 0.85rem; color: #bbb; justify-content: start;">
+                        <div title="Cash Payments">
+                            <span style="color: #8fdf9f;">Cash:</span> <span id="cashCount" style="color: #fff; font-weight: 600;">0</span>
+                        </div>
+                        <div title="Bank Transfers">
+                            <span style="color: #8fdf9f;">Bank:</span> <span id="bankCount" style="color: #fff; font-weight: 600;">0</span>
+                        </div>
+                        <div title="Online/Card Payments">
+                            <span style="color: #8fdf9f;">Online:</span> <span id="onlineCount" style="color: #fff; font-weight: 600;">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4>Total Tickets Sold</h4>
+                    <span class="total-sold-display" id="totalTicketsSold">0</span>
+                    <div id="ticketTypeBreakdown" style="margin-top: 8px; font-size: 0.8rem;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card pending">
+            <h3>Other</h3>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #ffc107;" id="pendingDocCount">0</div>
+                    <div style="font-size: 0.75rem; color: #888;">Pending</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #dc3545;" id="cancelledDocCount">0</div>
+                    <div style="font-size: 0.75rem; color: #888;">Cancelled</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #dc3545;" id="rejectedDocCount">0</div>
+                    <div style="font-size: 0.75rem; color: #888;">Rejected</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all" id="filterAll">All Tickets</button>
+        <button class="filter-btn" data-filter="purchased" id="filterPurchased">Purchased</button>
+        <button class="filter-btn" data-filter="pending" id="filterPending">Pending Approval</button>
+        <button class="filter-btn" data-filter="rejected" id="filterRejected">Rejected</button>
+        <button class="filter-btn" data-filter="cancelled" id="filterCancelled">Cancelled</button>
+    </div>
+
+    <div class="search-bar">
+        <div class="search-input-wrapper">
+            <input type="text" id="searchInput" placeholder="Search by Ticket ID or Customer Email..." title="Search by Ticket ID or Customer Email">
+            <button type="button" id="clearSearchBtn" title="Clear Search">&times;</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th>Customer Email</th>
+                    <th>Ticket Qty</th>
+                    <th>Purchase Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsTableBody">
+                <tr><td colspan="7" style="text-align:center;">Loading tickets...</td></tr>
+            </tbody>
+        </table>
+        <p id="noResults" style="text-align:center; margin-top: 1rem; display: none; color: #ff4d4d;">No tickets found for this filter.</p>
+    </div>
+
+</div>
+
+<!-- Modals -->
+<div id="ticketDetailsModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Ticket Details</h2>
+            <button class="close-btn" onclick="document.getElementById('ticketDetailsModal').style.display='none'">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            </div>
+        <div class="modal-footer">
+            <button class="action-btn close-modal" onclick="document.getElementById('ticketDetailsModal').style.display='none'">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="rejectionReasonModal" class="modal-overlay">
+    <div class="rejection-modal-content">
+        <h3>Reason for Rejection</h3>
+        <p style="margin-bottom: 1.5rem;">Select the reason to notify the customer:</p>
+        <div class="rejection-options">
+            <label>
+                <input type="radio" name="rejectionReason" value="Didn't receive payment" checked>
+                Didn't receive payment (Bank transfer not processed/found)
+            </label>
+            <label>
+                <input type="radio" name="rejectionReason" value="Insufficient amount">
+                Insufficient amount transferred
+            </label>
+            <label>
+                <input type="radio" name="rejectionReason" value="other">
+                Other (Requires customer to contact support)
+            </label>
+        </div>
+        <div class="modal-footer" style="border-top: none; padding-top: 0;">
+            <button class="action-btn close-modal" onclick="document.getElementById('rejectionReasonModal').style.display='none'">Cancel</button>
+            <button class="action-btn reject" id="confirmRejectionBtn">Confirm Rejection</button>
+        </div>
+    </div>
+</div>
+
+<div id="processingModal" class="modal-overlay" style="z-index: 3000;">
+    <div style="text-align: center; color: #8fdf9f; background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.8);">
+        <div class="loader"></div>
+        <p style="margin-top: 15px; font-weight: 600;">Processing Request... Please wait.</p>
+    </div>
+</div>
+
+<div id="doneModal" class="modal-overlay" style="z-index: 4000; background: none;">
+    <div style="background: #1d8240; color: white; padding: 15px 30px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.5rem;">&#10003;</span>
+        <span id="doneMessage">Done!</span>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/d-y-p/qrcode-generator/qrcode.js"></script>
+
+<script type="module">
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { collection, getDocs, doc, setDoc, deleteDoc, Timestamp, runTransaction, query, where, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { auth, db } from "./auth.js";
+import { sendApprovalConfirmationEmail, sendRejectionEmail, formatTicketDetailsAsPlainText } from "./email-service.js";
+
+// --- Sidebar Toggle Logic ---
+const sidebar = document.getElementById("sidebar");
+const sidebarToggle = document.getElementById("sidebarToggle");
+
+if(sidebarToggle){
+    sidebarToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+    document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            sidebar.classList.remove("open");
+        }
+    });
+}
+
+// Navigation
+document.getElementById("dashboardBtn").addEventListener("click", () => {
+  localStorage.removeItem('organizerEventId');
+  window.location.replace("organizer-dashboard.html");
+});
+
+document.getElementById("eventsBtn").addEventListener("click", () => {
+  const eventId = new URLSearchParams(window.location.search).get("id") || localStorage.getItem('organizerEventId');
+  if (!eventId) {
+      alert("No event assigned. Please contact the administrator.");
+      return;
+  }
+  window.location.replace(`event-details.html?id=${eventId}`);
+});
+
+document.getElementById("viewTicketsBtn").addEventListener("click", () => {
+  const eventId = new URLSearchParams(window.location.search).get("id") || localStorage.getItem('organizerEventId');
+  if (!eventId) {
+      alert("No event assigned. Please contact the administrator.");
+      return;
+  }
+  window.location.replace(`ticket-management.html?id=${eventId}`);
+});
+
+document.getElementById("profileBtn").addEventListener("click", () => {
+  window.location.replace("profile.html");
+});
+
+document.getElementById("votingBtn").addEventListener("click", function() {
+    window.location.href = "vote_admin.html";
+});
+
+
+
+let allTickets = [];
+let eventNames = {};
+let currentFilter = 'all';
+// If the logged-in user is an organizer, this will hold their assigned event ID
+let currentOrganizerEventId = null;
+
+const ticketsTableBody = document.getElementById("ticketsTableBody");
+const noResultsMessage = document.getElementById("noResults");
+const filterButtons = document.querySelectorAll(".filter-btn");
+const searchInput = document.getElementById("searchInput");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+// Ticket Details Modal Elements
+const modalOverlay = document.getElementById("ticketDetailsModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
+const modalFooter = document.querySelector(".modal-footer");
+const adminNameSpan = document.getElementById("adminName");
+
+// Rejection Modal Elements
+const rejectionModal = document.getElementById("rejectionReasonModal");
+const confirmRejectionBtn = document.getElementById("confirmRejectionBtn");
+
+// Processing/Done Modal Elements
+const processingModal = document.getElementById("processingModal");
+const doneModal = document.getElementById("doneModal");
+const doneMessage = document.getElementById("doneMessage");
+
+
+// List of major Sri Lankan banks
+const sriLankanBanks = [
+    "Bank of Ceylon (BOC)",
+    "Commercial Bank of Ceylon PLC",
+    "Hatton National Bank PLC (HNB)",
+    "Sampath Bank PLC",
+    "People's Bank",
+    "Nations Trust Bank PLC (NTB)",
+    "Seylan Bank PLC",
+    "DFCC Bank PLC",
+    "Union Bank of Colombo PLC",
+    "National Development Bank PLC (NDB)",
+    "Standard Chartered Bank",
+    "HSBC",
+    "Citibank N.A.",
+    "Deutsche Bank AG",
+    "Indian Bank"
+];
+
+// Function to populate the bank dropdown options string
+function getBankDropdownOptions() {
+    let options = '<option value="" disabled selected>Select Bank</option>';
+    sriLankanBanks.forEach(bank => {
+        options += `<option value="${bank}">${bank}</option>`;
+    });
+    return options;
+}
+
+// Helper function to show/hide processing modal
+function showProcessing() {
+    processingModal.style.display = 'flex';
+}
+function hideProcessing() {
+    processingModal.style.display = 'none';
+}
+
+/**
+ * Shows a temporary "Done" notification modal.
+ * @param {string} msg The message to display.
+ */
+function showDoneNotification(msg) {
+    doneMessage.textContent = msg;
+    doneModal.style.display = 'flex';
+    // Hide after 1 second
+    setTimeout(() => {
+        doneModal.style.display = 'none';
+    }, 1000);
+}
+
+
+// Helper function to format currency as LKR
+function formatCurrency(amount) {
+    if (typeof amount !== 'number' || isNaN(amount)) return 'LKR 0.00';
+    // Use toFixed(2) to ensure two decimal places and add commas
+    return 'LKR ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.replace("admin.html");
+        return;
+    }
+
+    if(adminNameSpan) adminNameSpan.textContent = user.email || 'Ticket Management';
+
+    // Fetch Organizer's assigned event ID
+    try {
+        // First try to fetch by document ID (user.uid)
+        let organizerData = null;
+        const docRef = doc(db, "organizers", user.uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            organizerData = docSnap.data();
+        } else {
+            // Fallback: Search by email if document ID lookup fails
+            console.log("Organizer document not found by UID, searching by email...");
+            const q = query(collection(db, "organizers"), where("email", "==", user.email));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const orgDoc = querySnapshot.docs[0];
+                organizerData = orgDoc.data();
+                console.log("Found organizer by email, document ID:", orgDoc.id);
+            }
+        }
+
+        if (organizerData) {
+            currentOrganizerEventId = organizerData.event || null;
+        } else {
+            currentOrganizerEventId = null;
+        }
+
+        // Show/Enable Generate Button if eventId exists
+        const generateBtn = document.getElementById("generateTicketBtn");
+        if (currentOrganizerEventId && generateBtn) {
+            generateBtn.style.display = "block";
+            generateBtn.onclick = () => {
+                window.location.href = `generate-ticket.html?eventId=${currentOrganizerEventId}`;
+            };
+        }
+
+        // Detailed Table button redirect
+        document.getElementById("detailedTableBtn").addEventListener("click", () => {
+            window.location.href = "tickets.html";
+        });
+    } catch (error) {
+        console.error("Error fetching organizer profile:", error);
+        currentOrganizerEventId = null;
+    }
+
+    await loadAllTickets();
+});
+
+
+filterButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        e.target.classList.add("active");
+        currentFilter = e.target.dataset.filter;
+        searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
+        renderTickets();
+    });
+});
+
+// Search Input Event Listener
+searchInput.addEventListener('input', () => {
+    if (searchInput.value.length > 0) {
+        clearSearchBtn.style.display = 'block';
+    } else {
+        clearSearchBtn.style.display = 'none';
+    }
+    renderTickets();
+});
+
+// Clear Search Button Listener
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearSearchBtn.style.display = 'none';
+    renderTickets();
+    searchInput.focus();
+});
+
+
+// Helper function to safely extract and format Firebase Timestamp.
+function getTimestampData(data) {
+    const ts = data && data.purchaseDate;
+    if (ts && typeof ts === 'object' && typeof ts.seconds === 'number') {
+        return { seconds: ts.seconds, nanoseconds: ts.nanoseconds || 0 };
+    }
+    return { seconds: 0, nanoseconds: 0 };
+}
+
+// Helper function to format the Date object into short date string (YYYY-MM-DD)
+function formatPurchaseDate(timestampData) {
+    if (timestampData.seconds === 0) return 'N/A';
+    const date = new Date(timestampData.seconds * 1000 + timestampData.nanoseconds / 1000000);
+    return date.toISOString().split('T')[0];
+}
+
+// Helper function to create a simplified, JSON-safe ticket object for HTML attributes
+function createSafeTicketData(ticket) {
+    // Recursively strip Firestore Timestamp objects to plain JS objects { seconds, nanoseconds }
+    function simplifyTimestamps(data) {
+        if (data instanceof Timestamp) {
+            return { seconds: data.seconds, nanoseconds: data.nanoseconds };
+        }
+        if (typeof data === 'object' && data !== null) {
+            if (Array.isArray(data)) {
+                return data.map(simplifyTimestamps);
+            }
+            const simplified = {};
+            for (const key in data) {
+                if (Object.hasOwnProperty.call(data, key)) {
+                    simplified[key] = simplifyTimestamps(data[key]);
+                }
+            }
+            return simplified;
+        }
+        return data;
+    }
+
+    const safeData = simplifyTimestamps(ticket);
+    const tsData = getTimestampData(ticket);
+
+    // Add flat, display-only properties
+    safeData.purchaseDateSeconds = tsData.seconds;
+    safeData.purchaseDateNanoseconds = tsData.nanoseconds;
+    safeData.purchaseDateDisplay = formatPurchaseDate(tsData);
+
+    // Ensure the original purchaseDate (which may be a Timestamp or placeholder) is removed from the flattened structure
+    if (safeData.purchaseDate) delete safeData.purchaseDate;
+
+    return safeData;
+}
+
+
+/**
+ * Fetches all events and populates the eventNames cache.
+ */
+async function fetchEventNames() {
+    eventNames = {};
+    try {
+        const eventsSnap = await getDocs(collection(db, "events"));
+        eventsSnap.forEach(doc => {
+            const data = doc.data();
+            eventNames[doc.id] = data.title || data.name || doc.id;
+        });
+    } catch (error) {
+        console.error("Error fetching event names:", error);
+    }
+}
+
+
+/**
+ * Loads all tickets from relevant collections.
+ */
+async function loadAllTickets() {
+    ticketsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Fetching data...</td></tr>';
+    allTickets = [];
+
+    await fetchEventNames();
+
+    try {
+        // Load each ticket collection and filter by assigned event if applicable
+        const collections = [
+            { name: "tickets", status: "purchased" },
+            { name: "pendingTickets", status: "pending" },
+            { name: "rejectedTickets", status: "rejected" },
+            { name: "cancelledTickets", status: "cancelled" }
+        ];
+
+        for (const col of collections) {
+            let q;
+            if (currentOrganizerEventId) {
+                q = query(collection(db, col.name), where("eventId", "==", currentOrganizerEventId));
+            } else {
+                // Security: Do not fetch all tickets if no event ID is assigned
+                console.warn(`Skipping ${col.name} - No event ID assigned.`);
+                continue;
+            }
+            
+            const snap = await getDocs(q);
+            snap.forEach(doc => {
+                if (doc.data()) {
+                    const data = doc.data();
+                    allTickets.push({ id: doc.id, ...data, status: col.status });
+                }
+            });
+        }
+
+        // Sort all tickets by purchase date (most recent first)
+        allTickets.sort((a, b) => {
+            return getTimestampData(b).seconds - getTimestampData(a).seconds;
+        });
+
+        // --- UPDATE STATS (Document Counts) ---
+        const purchasedTickets = allTickets.filter(t => t.status === 'purchased');
+        const purchasedCount = purchasedTickets.length;
+        const pendingCount = allTickets.filter(t => t.status === 'pending').length;
+        const cancelledCount = allTickets.filter(t => t.status === 'cancelled').length;
+        const rejectedCount = allTickets.filter(t => t.status === 'rejected').length;   
+
+        // Calculate total tickets sold and ticket type breakdown
+        const ticketTypeCounts = {};
+        const totalTicketsSold = purchasedTickets.reduce((sum, ticket) => {
+            if (ticket.tickets && Array.isArray(ticket.tickets)) {
+                ticket.tickets.forEach(t => {
+                    const typeName = t.type || 'Standard';
+                    ticketTypeCounts[typeName] = (ticketTypeCounts[typeName] || 0) + (t.qty || 0);
+                });
+                return sum + ticket.tickets.reduce((ticketSum, t) => ticketSum + (t.qty || 0), 0);
+            }
+            return sum;
+        }, 0);
+
+        // Build ticket type breakdown HTML
+        const typeBreakdownEl = document.getElementById('ticketTypeBreakdown');
+        if (typeBreakdownEl) {
+            const breakdownHtml = Object.entries(ticketTypeCounts)
+                .map(([type, count]) => `<div><span style="color:#00ccff;">${type}:</span> <span style="color:#fff;font-weight:600;">${count}</span></div>`)
+                .join('');
+            typeBreakdownEl.innerHTML = breakdownHtml;
+        }
+
+        // Breakdown counts
+        const cashCount = purchasedTickets.filter(t => t.id && t.id.startsWith('CASH-')).length;
+        const bankCount = purchasedTickets.filter(t => t.id && t.id.startsWith('PND-')).length;
+        // Assuming any purchased ticket not Cash or Bank is Online/Card
+        const onlineCount = purchasedCount - cashCount - bankCount;
+
+        document.getElementById('purchasedDocCount').textContent = purchasedCount;
+        document.getElementById('pendingDocCount').textContent = pendingCount;
+        document.getElementById('cancelledDocCount').textContent = cancelledCount;
+        document.getElementById('rejectedDocCount').textContent = rejectedCount;
+        document.getElementById('totalTicketsSold').textContent = totalTicketsSold;
+        
+        // Update breakdown elements
+        const cashEl = document.getElementById('cashCount');
+        const bankEl = document.getElementById('bankCount');
+        const onlineEl = document.getElementById('onlineCount');
+
+        if (cashEl) cashEl.textContent = cashCount;
+        if (bankEl) bankEl.textContent = bankCount;
+        if (onlineEl) onlineEl.textContent = onlineCount;
+        // --------------------------------------
+
+        renderTickets();
+    } catch (error) {
+        console.error("Error loading tickets:", error);
+        ticketsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#ff4d4d;">Failed to load tickets. Check console for details.</td></div>';
+    }
+}
+
+/**
+ * Filters tickets based on the search query (ID or Email).
+ */
+function searchTickets(tickets, query) {
+    const lowerCaseQuery = query.toLowerCase().trim();
+    if (!lowerCaseQuery) {
+        return tickets;
+    }
+
+    return tickets.filter(ticket => {
+        const idMatch = ticket.id.toLowerCase().includes(lowerCaseQuery);
+        const emailMatch = ticket.email && ticket.email.toLowerCase().includes(lowerCaseQuery);
+
+        return idMatch || emailMatch;
+    });
+}
+
+/**
+ * Renders the ticket table based on the selected filter AND search input.
+ */
+function renderTickets() {
+    const filteredByStatus = allTickets.filter(ticket => {
+        if (currentFilter === "all") return true;
+        return ticket.status === currentFilter;
+    });
+
+    const searchQuery = searchInput.value;
+    const filteredTickets = searchTickets(filteredByStatus, searchQuery);
+
+    ticketsTableBody.innerHTML = "";
+    if (filteredTickets.length === 0) {
+        noResultsMessage.style.display = 'block';
+        return;
+    } else {
+        noResultsMessage.style.display = 'none';
+    }
+
+    filteredTickets.forEach(ticket => {
+        let statusClass = 'status-purchased';
+        if (ticket.status === 'pending') statusClass = 'status-pending';
+        if (ticket.status === 'rejected') statusClass = 'status-rejected';
+        if (ticket.status === 'cancelled') statusClass = 'status-cancelled';
+
+        // Payment Method Detection
+        let methodType = 'Online';
+        let methodClass = 'method-online';
+        
+        if (ticket.id && ticket.id.startsWith('CASH-')) {
+            methodType = 'Cash';
+            methodClass = 'method-cash';
+        } else if (ticket.id && ticket.id.startsWith('PND-')) {
+             methodType = 'Bank';
+             methodClass = 'method-bank';
+        }
+
+        const totalQty = ticket.tickets ? ticket.tickets.reduce((sum, t) => sum + t.qty, 0) : 'N/A';
+
+        const timestampData = getTimestampData(ticket);
+        const displayDate = formatPurchaseDate(timestampData);
+
+        const ticketId = ticket.id;
+
+        let actionsHtml = `<button class="action-btn details-btn" data-id="${ticketId}">Details</button>`;
+
+        const row = `
+            <tr>
+                <td>${ticketId.substring(0, 10)}...</td>
+                <td><span class="status-badge ${statusClass}">${ticket.status.toUpperCase()}</span></td>
+                <td><span class="method-badge ${methodClass}">${methodType}</span></td>
+                <td>${ticket.email}</td>
+                <td>${totalQty}</td>
+                <td>${displayDate}</td>
+                <td class="actions-cell">
+            <div class="actions-wrapper">${actionsHtml}</div>
+        </td>
+            </tr>`;
+        ticketsTableBody.insertAdjacentHTML("beforeend", row);
+    });
+
+    attachActionListeners();
+}
+
+/**
+ * Function to render and display the modal content.
+ */
+function showTicketDetailsModal(ticket) {
+    const eventName = eventNames[ticket.eventId] || (ticket.eventId || 'N/A');
+    const displayDate = formatPurchaseDate(getTimestampData(ticket));
+
+    const totalAmountLKR = ticket.tickets
+                            ? ticket.tickets.reduce((sum, t) => sum + (t.price * t.qty), 0)
+                            : 0;
+
+    const totalQty = ticket.tickets ? ticket.tickets.reduce((sum, t) => sum + t.qty, 0) : 'N/A';
+    const ticketId = ticket.id;
+
+    let statusClass = 'status-purchased';
+    if (ticket.status === 'pending') statusClass = 'status-pending';
+    if (ticket.status === 'rejected') statusClass = 'status-rejected';
+    if (ticket.status === 'cancelled') statusClass = 'status-cancelled';
+
+    // DEDUCE PAYMENT METHOD
+    let paymentMethod = 'Card Payment';
+    if (ticketId && ticketId.startsWith('PND-')) {
+        paymentMethod = 'Bank Transfer';
+    } else if (ticket.paymentMethod) {
+        paymentMethod = ticket.paymentMethod;
+    }
+
+    let issuedByHtml = '';
+    if (ticket.issuedBy) {
+        issuedByHtml = `<p><strong>Issued By:</strong> ${ticket.issuedBy}</p>`;
+    }
+
+
+    modalTitle.textContent = `Ticket Details (${ticket.status.toUpperCase()})`;
+
+    let bodyHtml = `
+        <div class="detail-group">
+            <p><strong>Ticket ID:</strong> ${ticketId}</p>
+            <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${ticket.status.toUpperCase()}</span></p>
+            <p><strong>Event Name:</strong> ${eventName}</p>
+            <p><strong>Customer Email:</strong> ${ticket.email}</p>
+            <p><strong>Total Qty:</strong> ${totalQty}</p>
+
+            <p><strong>Total Amount:</strong> ${formatCurrency(totalAmountLKR)}</p>
+
+            <p><strong>Purchase Date:</strong> ${displayDate}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            ${issuedByHtml}
+
+        </div>
+    `;
+
+    // Display Ticket Breakdown
+    bodyHtml += `
+        <h4>Tickets Breakdown:</h4>
+        <div class="detail-group ticket-list">
+            ${ticket.tickets ? ticket.tickets.map(t => `
+                <div class="ticket-item">
+                    <span style="flex-grow: 1;">
+                        <strong>Type:</strong> ${t.type || 'Standard'}
+                          | ${t.qty} x ${formatCurrency(t.price)}
+                    </span>
+                    <span class="price-qty" style="margin-left: auto;">
+                          = ${formatCurrency(t.qty * t.price)}
+                    </span>
+                </div>
+            `).join('') : '<p>No specific ticket breakdown available.</p>'}
+        </div>
+    `;
+
+    // START: CONSOLIDATED VERIFICATION AND RECEIPT VIEW
+
+    // 1. Pending Verification Form
+    if (ticket.status === 'pending') {
+        bodyHtml += `
+            <form id="bankApprovalForm" class="bank-approval-form" data-ticket-id="${ticketId}" data-receipt-checked="false">
+                <h3>Bank Transfer Verification</h3>
+
+                <div class="form-row">
+                    <div>
+                        <label for="bankSelect">Issuing Bank</label>
+                        <select id="bankSelect" name="bankName" required>
+                            ${getBankDropdownOptions()}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bankTicketId">Ticket ID (Auto)</label>
+                        <input type="text" id="bankTicketId" name="ticketId" value="${ticketId}" readonly style="color:#8fdf9f; font-weight: 700;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label for="transactionDate">Transaction Date</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" id="transactionDate" name="transactionDate" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="transactionTime">Transaction Time</label>
+                        <input type="time" id="transactionTime" name="transactionTime" required>
+                    </div>
+                </div>
+
+                <label for="transactionId">Transaction / Reference ID</label>
+                <input type="text" id="transactionId" name="transactionId" placeholder="Enter Transaction ID" required>
+
+                <label for="transactionIdVerify">Verify Transaction / Reference ID</label>
+                <input type="text" id="transactionIdVerify" name="transactionIdVerify" placeholder="Re-enter Transaction ID" required>
+                <p id="transactionIdError" class="verification-error">Transaction IDs do not match.</p>
+
+                <div id="receiptVerificationOutput" class="inline-status-message" style="display:none;"></div>
+
+                <div class="modal-footer" style="border-top: none; padding-top: 1rem; justify-content: space-between;">
+                    <button type="button" class="action-btn reject" id="inlineRejectBtn" data-id="${ticketId}">Reject Ticket</button>
+                    <div class="inline-action-group">
+                      <button type="button" class="action-btn secondary-action" id="checkReceiptBtn" data-id="${ticketId}">Check Receipt</button>
+                      <span id="approvalButtonWrapper">
+                          <button type="submit" class="action-btn approve" id="inlineConfirmApprovalBtn" disabled>Finalize Approval</button>
+                      </span>
+                    </div>
+                </div>
+            </form>
+        `;
+    }
+
+    // 2. Approved Verification Details (if applicable)
+    // Check for the new 'verification' object in the ticket document
+    if (ticket.status === 'purchased' && ticket.verification && ticket.verification.transactionId) {
+           const verifier = ticket.verification;
+           // Use the helper function to format the nested timestamp
+           // Note: If ticket.verification.verifiedAt is a Firebase Timestamp, formatPurchaseDate will fail
+           // It should only be a simple object { seconds, nanoseconds } in the safeTicketData structure
+           const verifiedDate = verifier.verifiedAt && verifier.verifiedAt.seconds ? formatPurchaseDate(verifier.verifiedAt) : 'N/A';
+
+           bodyHtml += `
+             <h4>Verification Details:</h4>
+             <div class="detail-group" style="border-left: 5px solid #02b860;">
+                 <p><strong>Bank:</strong> ${verifier.bankName || 'N/A'}</p>
+                 <p><strong>Txn ID:</strong> ${verifier.transactionId || 'N/A'}</p>
+                 <p><strong>Txn Date/Time:</strong> ${verifier.transactionDate} at ${verifier.transactionTime}</p>
+                 <p><strong>Verified By:</strong> ${verifier.verifiedBy || 'Unknown'}</p>
+                 <p style="font-size: 0.85rem; margin-top: 10px; color: #ccc;">(Verification recorded on: ${verifiedDate})</p>
+             </div>
+           `;
+    }
+    // END: CONSOLIDATED VERIFICATION AND RECEIPT VIEW
+
+    // 3. Receipt Image View
+    let receiptImageHtml = '';
+    if (ticket.receiptUrl) {
+        const title = ticket.status === 'pending' ? 'Current Customer Receipt:' : 'Archived Receipt:';
+        receiptImageHtml = `
+            <div class="receipt-image-container">
+                <h4 style="color: ${ticket.status === 'pending' ? '#e55400' : '#8fdf9f'}; margin-bottom: 10px;">${title}</h4>
+                <img src="${ticket.receiptUrl}" alt="Customer payment receipt" loading="lazy" onerror="this.onerror=null;this.src='//via.placeholder.com/600x400.png?text=Image+Not+Available';">
+            </div>
+        `;
+    }
+
+    // Add the grid container for receipt views and verification output
+    bodyHtml += `<div class="receipt-view-grid" id="receiptsGrid">${receiptImageHtml}</div>`;
+
+    modalBody.innerHTML = bodyHtml;
+
+    // Setup Modal Footer Actions (keeping only the default Close button)
+    const closeButton = modalFooter.lastElementChild;
+    while (modalFooter.children.length > 1) {
+        modalFooter.removeChild(modalFooter.firstChild);
+    }
+
+    const safeTicketForModalButtons = createSafeTicketData(ticket);
+    // Use encodeURIComponent to ensure the large JSON string is safely passed
+    const safeTicketJsonString = encodeURIComponent(JSON.stringify(safeTicketForModalButtons));
+    const ticketIdForButtons = ticket.id;
+
+
+    // Now, only add the Cancel button if the ticket is purchased, since Approve/Reject are inline for pending tickets
+    if (ticket.status === 'purchased') {
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'action-btn cancel';
+        cancelButton.textContent = 'Cancel Ticket';
+        cancelButton.dataset.id = ticketIdForButtons;
+        // Pass the encoded data in a custom attribute
+        cancelButton.setAttribute('data-ticket', safeTicketJsonString);
+        modalFooter.insertBefore(cancelButton, closeButton);
+    }
+
+    attachModalActionListeners();
+
+    modalOverlay.style.display = 'flex';
+}
+
+/**
+ * Attaches event listeners to the action buttons in the table.
+ */
+function attachActionListeners() {
+    document.querySelectorAll(".details-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const ticketId = e.target.dataset.id;
+            const fullTicket = allTickets.find(t => t.id === ticketId);
+
+            if (fullTicket) {
+                showTicketDetailsModal(fullTicket);
+            } else {
+                console.error("Critical Error: Ticket ID not found in global array for display:", ticketId);
+                alert("Error loading ticket data. Please refresh.");
+            }
+        });
+    });
+}
+
+/**
+ * Checks the 'receipts' collection for a duplicate transaction ID.
+ * @param {string} transactionId The ID to check.
+ * @param {string} currentTicketId The ID of the ticket currently being processed.
+ * @returns {Promise<Object|null>} The duplicate receipt data, or null.
+ */
+async function checkDuplicateReceipt(transactionId, currentTicketId) {
+    if (!transactionId) return null;
+
+    // Sanitize ID to prevent path traversal errors in doc()
+    if (transactionId.includes('/')) {
+        console.warn("Invalid transaction ID format detected.");
+        return null;
+    }
+
+    try {
+        // Query the 'receipts' collection directly by Transaction ID (which is the document ID)
+        const receiptDocRef = doc(db, "receipts", transactionId);
+        const receiptSnap = await getDoc(receiptDocRef);
+
+        if (receiptSnap.exists()) {
+            const receiptData = receiptSnap.data();
+
+            // Step 1: Check if this receipt already belongs to the CURRENT ticket.
+            if (receiptData.ticketId === currentTicketId) {
+                // Ignore if it's the current ticket being re-checked.
+                return null;
+            }
+
+            // Step 2: Since the document exists and the ticketId is different,
+            // it is definitively a duplicate receipt used for a different ticket.
+            return { id: transactionId, ...receiptData };
+
+        }
+
+        // No match found by Transaction ID (it's new)
+        return null;
+
+    } catch (error) {
+        console.error("Error checking duplicate receipt:", error);
+        return null;
+    }
+}
+
+/**
+ * Attaches event listeners specifically for the buttons inside the modal.
+ */
+function attachModalActionListeners() {
+    const bankApprovalForm = document.getElementById('bankApprovalForm');
+
+    // Only proceed if the form exists (i.e., ticket is pending)
+    if (bankApprovalForm) {
+
+        const confirmApprovalBtn = bankApprovalForm.querySelector('#inlineConfirmApprovalBtn');
+        const checkReceiptBtn = bankApprovalForm.querySelector('#checkReceiptBtn');
+        const receiptVerificationOutput = document.getElementById('receiptVerificationOutput');
+        const receiptsGrid = document.getElementById('receiptsGrid');
+        const approvalButtonWrapper = document.getElementById('approvalButtonWrapper');
+
+        // --- Initialize/Reset State on Modal Load ---
+        confirmApprovalBtn.disabled = true;
+        bankApprovalForm.setAttribute('data-receipt-checked', 'false');
+        // --- End Initialize/Reset State ---
+
+        // --- Rejection Button Listener ---
+          document.getElementById('inlineRejectBtn')?.addEventListener('click', (e) => {
+              const ticketId = e.target.dataset.id;
+              const fullTicketData = allTickets.find(t => t.id === ticketId);
+              if (!fullTicketData) return;
+
+              // Close Details Modal and open Rejection Reason Modal
+
+              rejectionModal.style.display='flex';
+              confirmRejectionBtn.dataset.id = ticketId;
+          });
+
+
+        // --- Check Receipt Button Listener ---
+        checkReceiptBtn?.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const transactionIdInput = bankApprovalForm.querySelector('#transactionId');
+            const bankSelectInput = bankApprovalForm.querySelector('#bankSelect');
+            const transactionIdVerifyInput = bankApprovalForm.querySelector('#transactionIdVerify');
+            const transactionIdError = bankApprovalForm.querySelector('#transactionIdError');
+            const ticketId = bankApprovalForm.dataset.ticketId;
+
+            // Reset state
+            receiptVerificationOutput.style.display = 'none';
+            confirmApprovalBtn.disabled = true; // IMPORTANT: Disable before check
+            bankApprovalForm.setAttribute('data-receipt-checked', 'false'); // Reset check status
+
+            // 1. Check if required fields (Bank/Date/Time) are filled using native validation
+            if (!bankApprovalForm.checkValidity()) {
+                // Use browser's native validation reporter to highlight missing fields
+                bankApprovalForm.reportValidity();
+                receiptVerificationOutput.textContent = "Error: Please fill in all date/time/bank fields before checking receipt.";
+                receiptVerificationOutput.className = "inline-status-message duplicate";
+                receiptVerificationOutput.style.display = 'block';
+                return;
+            }
+
+            // 2. Validate Transaction ID fields
+            if (!transactionIdInput.value.trim() || !transactionIdVerifyInput.value.trim()) {
+                transactionIdError.style.display = 'block';
+                transactionIdError.textContent = "Enter transaction ID";
+                return;
+            }
+            if (transactionIdInput.value.trim() !== transactionIdVerifyInput.value.trim()) {
+                transactionIdError.style.display = 'block';
+                transactionIdError.textContent = "Entered IDs do not match: Check again";
+                return;
+            }
+            transactionIdError.style.display = 'none';
+
+            // Get data after validation passes
+            const transactionId = transactionIdInput.value.trim();
+            const bankName = bankSelectInput.value;
+
+            showProcessing();
+            const duplicateReceipt = await checkDuplicateReceipt(transactionId, ticketId);
+            hideProcessing();
+
+            // Preserve the current ticket's receipt container HTML
+            const currentReceiptContainer = receiptsGrid.querySelector('.receipt-image-container')?.outerHTML || '';
+            receiptsGrid.innerHTML = currentReceiptContainer;
+
+            if (duplicateReceipt) {
+                // DUPLICATE FOUND
+                receiptVerificationOutput.textContent = `Duplicated receipt: Transaction ID found for Ticket ID ${duplicateReceipt.ticketId.substring(0, 10)}...`;
+                receiptVerificationOutput.className = "inline-status-message duplicate";
+
+                confirmApprovalBtn.disabled = true; // MUST remain disabled
+                bankApprovalForm.setAttribute('data-receipt-checked', 'false'); // Explicitly fail the check
+
+                // Display duplicate receipt and ticket details side-by-side
+                const duplicateTicketStatus = duplicateReceipt.ticketId.startsWith('PND-') ? 'Pending' : 'Purchased';
+                const duplicateReceiptHtml = `
+                    <div class="duplicate-receipt-container">
+                        <h4 style="color: #ff4d4d; margin-bottom: 10px;">Duplicate Receipt Details (Ticket ID: ${duplicateReceipt.ticketId}):</h4>
+                        <p><strong>Customer:</strong> ${duplicateReceipt.customerEmail}</p>
+                        <p><strong>Status:</strong> <span class="status-badge status-rejected" style="background-color: #6a0000;">${duplicateTicketStatus.toUpperCase()}</span></p>
+                        <p><strong>Bank Used:</strong> ${duplicateReceipt.bankName}</p>
+                        <p style="margin-top: 10px;"><strong>Txn Date:</strong> ${duplicateReceipt.transactionDate} at ${duplicateReceipt.transactionTime}</p>
+
+                        <div class="receipt-image-container" style="border: none; padding-top: 5px;">
+                            <h5 style="color: #ff4d4d; margin: 10px 0;">Duplicate Receipt Image:</h5>
+                            <img src="${duplicateReceipt.receiptUrl}" alt="Duplicate payment receipt" loading="lazy" onerror="this.onerror=null;this.src='//via.placeholder.com/600x400.png?text=Duplicate+Image+N/A';">
+                        </div>
+                    </div>
+                `;
+                receiptsGrid.insertAdjacentHTML('beforeend', duplicateReceiptHtml);
+
+            } else {
+                // NEW RECEIPT
+                receiptVerificationOutput.textContent = `Receipt is new: Ready to accept!`;
+                receiptVerificationOutput.className = "inline-status-message new";
+
+                confirmApprovalBtn.disabled = false; // Enable final approval
+                bankApprovalForm.setAttribute('data-receipt-checked', 'true'); // Set successful check flag
+            }
+
+            receiptVerificationOutput.style.display = 'block';
+        });
+
+
+        // --- Finalize Approval Button Wrapper Listener (Handles disabled state feedback) ---
+        approvalButtonWrapper?.addEventListener('click', (e) => {
+            // Only run if the button *inside* the wrapper is disabled (meaning the receipt hasn't been checked/passed)
+            if (confirmApprovalBtn.disabled) {
+                e.preventDefault(); // Stop click event propagation if possible
+                e.stopPropagation();
+                alert("Please review receipt before approving (Click 'Check Receipt' first).");
+                return;
+            }
+        });
+
+        // --- Finalize Approval Form Submission ---
+        bankApprovalForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const ticketId = form.dataset.ticketId;
+            const safeTicketData = allTickets.find(t => t.id === ticketId);
+
+            // 🚨 CRITICAL CHECK: Ensure receipt has been successfully checked (Safeguard 2)
+            if (form.getAttribute('data-receipt-checked') !== 'true') {
+                // This alert is primarily a failsafe, as the wrapper listener should catch it first.
+                alert("Please review receipt before approving (Click 'Check Receipt' first).");
+                return;
+            }
+
+            if (!ticketId || !safeTicketData) {
+                console.error("Critical Error: Approval target missing or invalid.");
+                alert("Error: Ticket data lost during approval flow. Please restart the process.");
+                return;
+            }
+
+            // Re-validate everything as a safety measure before processing
+            const transactionIdInput = form.querySelector('#transactionId');
+            const transactionIdVerifyInput = form.querySelector('#transactionIdVerify');
+            const transactionIdError = form.querySelector('#transactionIdError');
+
+            if (transactionIdInput.value.trim() !== transactionIdVerifyInput.value.trim() || !transactionIdInput.value.trim()) {
+                transactionIdError.style.display = 'block';
+                alert("Transaction IDs do not match.");
+                return;
+            }
+
+            if (!form.checkValidity()) {
+                form.reportValidity(); // This will highlight the missing fields
+                return;
+            }
+
+            // 3. Gather Verification Data
+            const verificationData = {
+                bankName: form.querySelector('#bankSelect').value,
+                transactionDate: form.querySelector('#transactionDate').value,
+                transactionTime: form.querySelector('#transactionTime').value,
+                transactionId: transactionIdInput.value.trim(),
+                verifiedBy: auth.currentUser.email,
+                verifiedAt: Timestamp.now(), // New Timestamp for the verification action
+            };
+
+            // 4. Prepare and Execute Approval
+            // NOTE: For pending tickets, the purchaseDate in allTickets is already a Firestore Timestamp object,
+            // but we pass it through convertSafeDataToFirestoreData just to be safe and consistent.
+            const firestoreData = convertSafeDataToFirestoreData(safeTicketData);
+
+            modalOverlay.style.display='none';
+            showProcessing();
+
+            try {
+                await handleTicketApproval(ticketId, firestoreData, verificationData);
+            } catch(error) {
+                console.error("Approval Failed:", error);
+                alert(`Approval Failed: ${error.message}`);
+            } finally {
+                hideProcessing();
+            }
+        });
+    }
+
+    // --- Cancellation Button Listener ---
+    document.querySelectorAll(".modal-footer .cancel").forEach(btn => {
+        btn.onclick = async (e) => {
+            const ticketId = e.target.dataset.id;
+            // Retrieve the JSON string from the attribute
+            const encodedSafeData = e.target.getAttribute('data-ticket');
+
+            if (!encodedSafeData) {
+                console.error("Critical Error: Missing ticket data attribute for cancellation.");
+                alert("Error loading ticket data for cancellation. Please refresh.");
+                return;
+            }
+
+            let safeTicketData;
+            try {
+                // Decode the URI and parse the JSON string back into an object
+                safeTicketData = JSON.parse(decodeURIComponent(encodedSafeData));
+            } catch (error) {
+                console.error("Failed to parse safe ticket data:", error);
+                alert("Error: Corrupt ticket data prevented cancellation.");
+                return;
+            }
+
+            if (!safeTicketData) return; // Should be covered by error block, but safety first
+
+            modalOverlay.style.display='none';
+
+            showProcessing();
+
+            try {
+                // Pass the successfully parsed object
+                await handleTicketCancellation(ticketId, safeTicketData);
+            } finally {
+                hideProcessing();
+            }
+        };
+    });
+}
+
+
+/**
+ * 🚨 NEW/REVISED HELPER: Recursively converts Firebase Timestamp placeholder objects
+ * (with 'seconds' and 'nanoseconds' props) back into Firestore Timestamp class instances
+ * within an object.
+ * @param {object} data The object to traverse and convert.
+ * @returns {object} The object with Timestamps restored.
+ */
+function restoreTimestamps(data) {
+    if (typeof data !== 'object' || data === null) {
+        return data;
+    }
+
+    // If it's an Array, map over it
+    if (Array.isArray(data)) {
+        return data.map(restoreTimestamps);
+    }
+
+    // Check if it's a Timestamp placeholder: { seconds: number, nanoseconds: number }
+    // AND ensure it's not a real Timestamp instance already (for robustness)
+    if (typeof data.seconds === 'number' && typeof data.nanoseconds === 'number' && !(data instanceof Timestamp)) {
+        return new Timestamp(data.seconds, data.nanoseconds);
+    }
+
+    const restoredData = {};
+    for (const key in data) {
+        if (Object.hasOwnProperty.call(data, key)) {
+            restoredData[key] = restoreTimestamps(data[key]);
+        }
+    }
+    return restoredData;
+}
+
+
+// 🚨 REVISED HELPER: Converts safe JSON back to a Firestore-compatible object,
+// ensuring deep restoration of all Timestamps.
+function convertSafeDataToFirestoreData(safeData) {
+      const firestoreData = { ...safeData };
+
+    // 1. Deeply restore all Timestamp objects (including purchaseDate and verification.verifiedAt)
+    const restoredData = restoreTimestamps(firestoreData);
+
+    // 2. Remove non-Firestore utility keys
+    if (restoredData.purchaseDateSeconds) delete restoredData.purchaseDateSeconds;
+    if (restoredData.purchaseDateNanoseconds) delete restoredData.purchaseDateNanoseconds;
+    if (restoredData.purchaseDateDisplay) delete restoredData.purchaseDateDisplay;
+    if (restoredData.status) delete restoredData.status;
+    if (restoredData.id) delete restoredData.id;
+
+    return restoredData;
+}
+
+
+/**
+ * Updates event inventory within a transaction (for approval).
+ */
+async function updateEventInventory(eventId, purchasedTickets) {
+    const eventRef = doc(db, "events", eventId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const eventDoc = await transaction.get(eventRef);
+            if (!eventDoc.exists()) {
+                throw new Error("Event document not found for inventory update!");
+            }
+
+            const eventData = eventDoc.data();
+            let eventTicketTypes = eventData.ticketTypes || [];
+
+            purchasedTickets.forEach(purchasedTicket => {
+                const purchasedQty = purchasedTicket.qty;
+                const purchasedName = purchasedTicket.type;
+                const purchasedPrice = purchasedTicket.price;
+
+                const index = eventTicketTypes.findIndex(t =>
+                    t.name === purchasedName && t.price === purchasedPrice
+                );
+
+                if (index !== -1) {
+                    const currentType = eventTicketTypes[index];
+                    const currentIssued = currentType.issuedTickets || 0;
+                    const newIssued = currentIssued + purchasedQty;
+
+                    eventTicketTypes[index] = { ...currentType, issuedTickets: newIssued };
+                } else {
+                    console.warn(`Inventory Warning: Ticket type ${purchasedName} not found in event inventory.`);
+                }
+            });
+
+            transaction.update(eventRef, { ticketTypes: eventTicketTypes });
+        });
+
+        console.log(`Inventory updated successfully for event ${eventId}`);
+    } catch (e) {
+        console.error("Transaction failed to update event inventory:", e);
+        throw new Error(`Inventory update failed: ${e.message || e}`);
+    }
+}
+
+/**
+ * Saves detailed bank verification data to the 'receipts' collection.
+ * Uses the transactionId as the document ID.
+ */
+async function saveReceiptData(ticketId, firestoreData, verificationData) {
+    const transactionId = verificationData.transactionId;
+    const receiptDocRef = doc(db, "receipts", transactionId);
+
+    const receiptData = {
+        ...verificationData, 
+        ticketId: ticketId,
+        customerEmail: firestoreData.email,
+        eventId: firestoreData.eventId,
+        amount: firestoreData.tickets.reduce((sum, t) => sum + (t.price * t.qty), 0),
+        
+        // Save the Timestamp directly here too
+        purchaseDate: firestoreData.purchaseDate,
+        
+        receiptUrl: firestoreData.receiptUrl,
+        createdAt: Timestamp.now()
+    };
+
+    try {
+        await setDoc(receiptDocRef, receiptData);
+        console.log(`Receipt saved successfully for Txn ID: ${transactionId}`);
+    } catch (e) {
+        console.error(`Error saving receipt data for Txn ID: ${transactionId}`, e);
+        throw new Error(`Failed to save receipt record: ${e.message}`);
+    }
+}
+
+
+/**
+ * Handles the approval process for a pending ticket.
+ */
+async function handleTicketApproval(ticketId, firestoreData, verificationData) {
+    if (!confirm(`Final confirmation to APPROVE and issue ticket ${ticketId}?`)) return;
+
+    try {
+        // --- FIX: FORCE CONVERSION TO JAVASCRIPT DATE ---
+        // Currently, firestoreData.purchaseDate is a plain object { seconds: ... }
+        // We must convert it to a JS Date object so Firebase saves it as a readable Timestamp.
+        
+        let validPurchaseDate;
+        const pDate = firestoreData.purchaseDate;
+
+        if (pDate && typeof pDate.seconds === 'number') {
+            // Convert the seconds (Unix time) to a JavaScript Date
+            validPurchaseDate = new Date(pDate.seconds * 1000);
+        } else if (pDate && typeof pDate.toDate === 'function') {
+            // It's already a Timestamp, convert to Date
+            validPurchaseDate = pDate.toDate();
+        } else {
+            // Fallback if date is missing
+            validPurchaseDate = new Date();
+        }
+        // -----------------------------------------------
+
+        const newTicketData = {
+            ...firestoreData,
+            isScanned: false,
+            ticketId: ticketId,
+            verification: verificationData,
+            
+            // SAVE AS JS DATE (Firebase will auto-convert this to a readable Timestamp)
+            purchaseDate: validPurchaseDate, 
+        };
+
+        // 1.1. Move to 'tickets' collection
+        await setDoc(doc(db, "tickets", ticketId), newTicketData);
+
+        // 2. SAVE TO DEDICATED RECEIPTS COLLECTION
+        // Update the receipt data to use the fixed date as well
+        await saveReceiptData(ticketId, { ...firestoreData, purchaseDate: validPurchaseDate }, verificationData);
+
+        // 3. Delete from 'pendingTickets'
+        await deleteDoc(doc(db, "pendingTickets", ticketId));
+
+        // 4. Update Event Inventory
+        const eventId = firestoreData.eventId;
+        const purchasedTickets = firestoreData.tickets;
+        await updateEventInventory(eventId, purchasedTickets);
+
+        const eventTitle = eventNames[firestoreData.eventId] || "Your Event";
+
+        // 5. Send Confirmation Email
+        const emailResult = await sendApprovalConfirmationEmail(
+            db,
+            { id: ticketId, ...newTicketData, tickets: firestoreData.tickets },
+            eventTitle
+        );
+
+        let successMessage = `Ticket Approved!`;
+        processingModal.style.display = 'none';
+        if (emailResult && !emailResult.success) {
+            successMessage += `\nWARNING: Failed to send confirmation email. ${emailResult.message}`;
+        }
+
+        showDoneNotification(successMessage);
+        await loadAllTickets();
+
+    } catch (error) {
+        console.error("Error approving ticket:", error);
+        alert(`Failed to approve ticket ${ticketId}. Error: ${error.message}`);
+        try { await deleteDoc(doc(db, "tickets", ticketId)); } catch (e) { console.warn("Failed cleanup:", e); }
+    }
+}
+
+/**
+ * Handles the rejection (moving to rejectedTickets) of a pending ticket.
+ */
+async function handleTicketRejection(ticketId, fullTicketData, rejectionReason) {
+    if (!confirm(`Confirm rejection for pending ticket ${ticketId}? This action cannot be easily undone.`)) return;
+
+    // NOTE: For pending tickets, fullTicketData should already contain Firebase Timestamp objects,
+    // so conversion is theoretically not needed, but we run it for safety/consistency.
+    const firestoreData = convertSafeDataToFirestoreData(createSafeTicketData(fullTicketData));
+
+    try {
+        const newTicketData = {
+            ...firestoreData,
+            rejectedAt: Timestamp.now(),
+            rejectedBy: auth.currentUser.email || 'Unknown',
+            rejectionReason: rejectionReason,
+            ticketId: ticketId
+        };
+
+        // 1. Move to 'rejectedTickets' collection
+        await setDoc(doc(db, "rejectedTickets", ticketId), newTicketData);
+
+        // 2. Delete from 'pendingTickets'
+        await deleteDoc(doc(db, "pendingTickets", ticketId));
+
+        const eventTitle = eventNames[firestoreData.eventId] || "Your Event";
+
+        // 3. Send Rejection Email
+        const emailResult = await sendRejectionEmail(
+             { id: ticketId, ...newTicketData },
+             eventTitle,
+             rejectionReason
+            );
+
+        let successMessage = `Ticket Rejected!`;
+        if (emailResult && !emailResult.success) {
+            successMessage += `\nWARNING: Failed to send rejection email. ${emailResult.message}`;
+        }
+
+        showDoneNotification(successMessage);
+        await loadAllTickets();
+
+    } catch (error) {
+        console.error("Error rejecting ticket:", error);
+        alert(`Failed to reject ticket ${ticketId}. Error: ${error.message}`);
+    }
+}
+
+/**
+ * Handles the cancellation (moving to cancelledTickets) of a purchased ticket.
+ */
+async function handleTicketCancellation(ticketId, safeTicketData) {
+    if (!confirm(`Are you sure you want to CANCEL purchased ticket ${ticketId}? This action is usually irreversible.`)) return;
+
+    try {
+        // 🚨 CRITICAL FIX: This now correctly restores ALL nested timestamps (like verification.verifiedAt)
+        const firestoreData = convertSafeDataToFirestoreData(safeTicketData);
+
+        const newTicketData = {
+            ...firestoreData,
+            cancelledAt: Timestamp.now(),
+            cancelledBy: auth.currentUser.email || 'Unknown',
+            ticketId: ticketId
+        };
+
+        // 1. Move to 'cancelledTickets' collection
+        await setDoc(doc(db, "cancelledTickets", ticketId), newTicketData);
+
+        // 2. Delete from 'tickets' (purchased) collection
+        await deleteDoc(doc(db, "tickets", ticketId));
+
+        showDoneNotification(`Ticket Cancelled!`);
+        await loadAllTickets();
+
+    } catch (error) {
+        console.error("Error cancelling ticket:", error);
+        alert(`Failed to cancel ticket ${ticketId}. Error: ${error.message}`);
+    }
+}
+
+// ------------------------------------------------------------------
+// EVENT BINDING & MODAL LOGIC
+// ------------------------------------------------------------------
+
+// Rejection Modal Listener (for the final rejection confirmation)
+confirmRejectionBtn.addEventListener('click', async () => {
+    const ticketId = confirmRejectionBtn.dataset.id;
+
+    const fullTicketData = allTickets.find(t => t.id === ticketId);
+    if (!ticketId || !fullTicketData) {
+        console.error("Critical Error: Rejection target missing or invalid.");
+        alert("Error: Ticket data lost during rejection flow. Please restart the process.");
+        rejectionModal.style.display='none';
+        return;
+    }
+
+    const radioButtons = rejectionModal.querySelectorAll('input[name="rejectionReason"]');
+    let selectedReason = '';
+    for (const radio of radioButtons) {
+        if (radio.checked) {
+            selectedReason = radio.value;
+            break;
+        }
+    }
+
+    if (!selectedReason) {
+        alert("Please select a rejection reason.");
+        return;
+    }
+
+    // fullTicketData should contain Firebase Timestamps since it came directly from the snapshot array
+
+    rejectionModal.style.display='none';
+    showProcessing();
+
+    try {
+        await handleTicketRejection(ticketId, fullTicketData, selectedReason);
+    } finally {
+        hideProcessing();
+        rejectionModal.style.display='none';
+        modalOverlay.style.display='none';
+    }
+});
+
+// --- Load Version ---
+const footer = document.getElementById('sidebarFooter');
+if (footer) footer.innerHTML = `Designed and developed by dubLive systems <span class="version">version1.3.1</span>`;
+
+// Highlight active sidebar button
+(function highlightActivePage() {
+  const currentPage = window.location.pathname.split('/').pop() || 'ticket-management.html';
+  const buttons = {
+    'organizer-dashboard.html': 'dashboardBtn',
+    'event-details.html': 'eventsBtn',
+    'ticket-management.html': 'viewTicketsBtn',
+    'profile.html': 'profileBtn'
+  };
+  
+  if (buttons[currentPage]) {
+    document.querySelectorAll('.action-button').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(buttons[currentPage]);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+})();
+</script>
+
+</body>
+</html>
