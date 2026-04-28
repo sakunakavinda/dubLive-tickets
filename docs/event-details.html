@@ -163,7 +163,6 @@ tbody tr:last-child td { border-bottom: none; }
   <button id="backToDashboardBtn" class="action-button"><i class="fas fa-chart-line"></i> Dashboard</button>
   <button id="eventsBtn" class="action-button active"><i class="fas fa-calendar-alt"></i> Event Data</button>
   <button id="viewTicketsBtn" class="action-button"><i class="fas fa-ticket-alt"></i> Ticket Management</button>
-  <button id="votingBtn" class="action-button"><i class="fas fa-vote-yea"></i> Voting Admin</button>
   <button id="profileBtn" class="action-button"><i class="fas fa-user"></i> Profile</button>
   <div id="sidebarFooter" class="sidebar-footer">Loading version...</div>
 </div>
@@ -774,10 +773,6 @@ document.getElementById("viewTicketsBtn").addEventListener("click", () => {
 
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "profile.html";
-});
-
-document.getElementById("votingBtn").addEventListener("click", function() {
-    window.location.href = "vote_admin.html";
 });
 
 // --- Load Version ---

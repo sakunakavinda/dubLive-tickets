@@ -78,7 +78,6 @@ tbody tr:hover { background: #1a1a1a; }
   <button id="dashboardBtn" class="action-button active"><i class="fas fa-chart-line"></i> Dashboard</button>
   <button id="eventsBtn" class="action-button"><i class="fas fa-calendar-alt"></i> Event Data</button>
   <button id="viewTicketsBtn" class="action-button"><i class="fas fa-ticket-alt"></i> Ticket Management</button>
-  <button id="votingBtn" class="action-button"><i class="fas fa-vote-yea"></i> Voting Admin</button>
   <button id="profileBtn" class="action-button"><i class="fas fa-user"></i> Profile</button>
   <div id="sidebarFooter" class="sidebar-footer">Loading version...</div>
 </div>
@@ -248,9 +247,7 @@ document.getElementById("viewTicketsBtn").addEventListener("click", function() {
     window.location.href = "ticket-management.html?id=" + assignedEventId;
 });
 
-document.getElementById("votingBtn").addEventListener("click", function() {
-    window.location.href = "vote_admin.html";
-});
+
 
 const footer = document.getElementById("sidebarFooter");
 if (footer) footer.innerHTML = "Designed and developed by dubLive systems <span class=\"version\">version1.3.1</span>";
