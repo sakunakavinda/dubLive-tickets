@@ -1102,7 +1102,6 @@
         </section>
 
         <div class="buy-button-wrapper">
-          <button id="voteBtn" style="background: var(--primary); color: var(--color-background); width: 100%; font-size: 1.3rem; border-radius: 22rem; animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);">Vote for King and Queen</button>
           <button id="buyTicketsBtn" style="margin-top: 15px;">Buy Tickets</button>
         </div>
       </main>
@@ -1426,10 +1425,7 @@
             window.location.href = `buy.html?id=${eventId}`;
           };
 
-          // Vote Button Handler
-          document.getElementById("voteBtn").onclick = () => {
-            window.location.href = `vote.html?id=${eventId}`;
-          };
+
 
           // UPDATED BUTTON HANDLER: Navigate to event-map.html
           document.getElementById("contactDetailsBtn").onclick = () => {
